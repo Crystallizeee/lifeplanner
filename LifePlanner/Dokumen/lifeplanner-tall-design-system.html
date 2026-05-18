@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifePlanner SIM — TALL Stack Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D0D0F;
+    --paper: #F5F2ED;
+    --cream: #EDE9E1;
+    --stone: #C8C0B4;
+    --mist: #8A8480;
+    --forest: #2D5016;
+    --sage: #4A7C3F;
+    --leaf: #7FB069;
+    --mint: #C8E6C0;
+    --gold: #C9962A;
+    --amber: #E8B84B;
+    --dusk: #1A1035;
+    --violet: #3D2B8A;
+    --lavender: #8B7FD4;
+    --blush: #C45C6A;
+    --rose: #E8A0AB;
+    --teal: #1E6B6B;
+    --cyan: #5BBFBF;
+    --surface: #FDFAF6;
+    --border: #DDD8CF;
+    --shadow: rgba(13,13,15,0.08);
+    --shadow-md: rgba(13,13,15,0.14);
+    --radius-sm: 6px;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 32px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────────── */
+  .ds-wrapper {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* ─── HERO HEADER ────────────────────────────────── */
+  .ds-hero {
+    background: var(--dusk);
+    color: white;
+    padding: 72px 32px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ds-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 40%, rgba(61,43,138,0.6) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(30,107,107,0.4) 0%, transparent 50%);
+  }
+  .ds-hero-inner {
+    position: relative;
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  .ds-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 28px;
+  }
+  .ds-hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .ds-hero h1 em { font-style: italic; color: var(--amber); }
+  .ds-hero p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .ds-hero-stack {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .stack-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07);
+    color: white;
+  }
+  .stack-pill span { font-size: 18px; }
+
+  /* ─── SECTION HEADERS ────────────────────────────── */
+  .ds-section {
+    margin-top: 72px;
+  }
+  .ds-section-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 0.1em;
+    min-width: 28px;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .ds-section-label h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ─── COLOR SYSTEM ───────────────────────────────── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .color-swatch {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .color-swatch-block {
+    height: 72px;
+  }
+  .color-swatch-info {
+    background: var(--surface);
+    padding: 10px 12px;
+  }
+  .color-swatch-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    display: block;
+  }
+  .color-swatch-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mist);
+    display: block;
+    margin-top: 2px;
+  }
+  .color-swatch-role {
+    font-size: 10px;
+    color: var(--stone);
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* ─── TYPOGRAPHY ─────────────────────────────────── */
+  .type-specimens {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    align-items: start;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .type-meta { padding-top: 4px; }
+  .type-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .type-specs {
+    font-size: 11px;
+    color: var(--stone);
+    line-height: 1.8;
+  }
+
+  /* ─── COMPONENTS ─────────────────────────────────── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .comp-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .comp-card-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+  .comp-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--cream);
+    color: var(--sage);
+    border-radius: 4px;
+    padding: 3px 7px;
+    border: 1px solid var(--mint);
+  }
+  .comp-body {
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ─── BUTTONS ────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-primary {
+    background: var(--forest);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--sage); transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--cream);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--stone); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--sage);
+    border: 1px solid var(--sage);
+  }
+  .btn-ghost:hover { background: var(--mint); }
+  .btn-danger {
+    background: var(--blush);
+    color: white;
+  }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+  .btn-lg { padding: 14px 28px; font-size: 16px; border-radius: var(--radius); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--amber));
+    color: var(--dusk);
+  }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  /* ─── BADGES ─────────────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green { background: var(--mint); color: var(--forest); }
+  .badge-amber { background: #FEF3C7; color: #92400E; }
+  .badge-red { background: #FFE4E6; color: #9F1239; }
+  .badge-blue { background: #EDE9FE; color: var(--violet); }
+  .badge-gray { background: var(--cream); color: var(--mist); }
+
+  /* ─── FORM ELEMENTS ──────────────────────────────── */
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mist);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .form-input {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--ink);
+    transition: border-color 0.15s;
+    outline: none;
+    width: 100%;
+  }
+  .form-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(74,124,63,0.12); }
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8480' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .form-hint { font-size: 12px; color: var(--stone); }
+
+  /* ─── CARDS ──────────────────────────────────────── */
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .mc-green::before { background: linear-gradient(90deg, var(--forest), var(--leaf)); }
+  .mc-gold::before { background: linear-gradient(90deg, var(--gold), var(--amber)); }
+  .mc-violet::before { background: linear-gradient(90deg, var(--violet), var(--lavender)); }
+  .mc-teal::before { background: linear-gradient(90deg, var(--teal), var(--cyan)); }
+  .mc-blush::before { background: linear-gradient(90deg, var(--blush), var(--rose)); }
+
+  .module-card-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .mi-green { background: var(--mint); }
+  .mi-gold { background: #FEF3C7; }
+  .mi-violet { background: #EDE9FE; }
+  .mi-teal { background: #CFFAFE; }
+  .mi-blush { background: #FFE4E6; }
+
+  .module-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .module-card p {
+    font-size: 14px;
+    color: var(--mist);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .feature-list li {
+    font-size: 13px;
+    color: var(--ink);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .feature-list li::before {
+    content: '→';
+    color: var(--sage);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ─── STAT CARD ──────────────────────────────────── */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+  }
+  .stat-label { font-size: 12px; color: var(--mist); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 36px; line-height: 1; color: var(--ink); }
+  .stat-sub { font-size: 13px; color: var(--mist); margin-top: 6px; }
+  .stat-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+  .trend-up { color: var(--sage); }
+  .trend-down { color: var(--blush); }
+
+  /* ─── PROGRESS ───────────────────────────────────── */
+  .progress-bar {
+    height: 8px;
+    background: var(--cream);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.6s ease;
+  }
+  .pf-green { background: linear-gradient(90deg, var(--sage), var(--leaf)); }
+  .pf-gold { background: linear-gradient(90deg, var(--gold), var(--amber)); }
+  .pf-violet { background: linear-gradient(90deg, var(--violet), var(--lavender)); }
+
+  /* ─── HABIT MATRIX ───────────────────────────────── */
+  .habit-matrix {
+    display: grid;
+    grid-template-columns: 120px repeat(7, 1fr);
+    gap: 6px;
+    font-size: 12px;
+  }
+  .hm-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--stone);
+    text-align: center;
+    padding: 4px;
+  }
+  .hm-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hm-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.12s;
+    border: 1.5px solid var(--border);
+  }
+  .hm-done { background: var(--sage); border-color: var(--forest); color: white; font-size: 11px; }
+  .hm-empty { background: var(--surface); }
+  .hm-today { border-color: var(--sage); background: var(--mint); }
+
+  /* ─── KANBAN ─────────────────────────────────────── */
+  .kanban-demo {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .kanban-col { }
+  .kanban-col-header {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mist);
+    padding: 0 4px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .kanban-count {
+    background: var(--cream);
+    color: var(--stone);
+    border-radius: 100px;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  .kanban-card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .kanban-card-meta { font-size: 11px; color: var(--stone); }
+  .kanban-card-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* ─── SIDEBAR NAV ────────────────────────────────── */
+  .nav-demo {
+    background: var(--dusk);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    width: 240px;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: white;
+    margin-bottom: 28px;
+    padding: 0 8px;
+  }
+  .nav-logo span { color: var(--amber); }
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 0 8px;
+    margin: 16px 0 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: all 0.12s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: white; }
+  .nav-item.active { background: rgba(201,150,42,0.2); color: var(--amber); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: rgba(201,150,42,0.25);
+    color: var(--amber);
+    border-radius: 100px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ─── TABLE ──────────────────────────────────────── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--mist);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--cream);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--cream); }
+
+  /* ─── ALERT/TOAST ────────────────────────────────── */
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid;
+    font-size: 14px;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; }
+  .alert-success { background: #F0FDF4; border-color: #86EFAC; color: #166534; }
+  .alert-warning { background: #FFFBEB; border-color: #FCD34D; color: #92400E; }
+  .alert-error { background: #FFF1F2; border-color: #FDA4AF; color: #9F1239; }
+  .alert-info { background: #EEF2FF; border-color: #A5B4FC; color: #3730A3; }
+
+  /* ─── LIVEWIRE COMPONENT SPEC ────────────────────── */
+  .spec-block {
+    background: var(--dusk);
+    border-radius: var(--radius);
+    padding: 24px;
+    color: white;
+  }
+  .spec-filename {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .spec-filename::before { content: '📄'; }
+  .spec-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.85);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .sc-comment { color: rgba(255,255,255,0.35); }
+  .sc-keyword { color: #79C0FF; }
+  .sc-string { color: #A8FF78; }
+  .sc-class { color: var(--amber); }
+  .sc-method { color: #D2A8FF; }
+  .sc-tag { color: #FF7B72; }
+  .sc-attr { color: #79C0FF; }
+
+  /* ─── SPACING SCALE ──────────────────────────────── */
+  .spacing-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .spacing-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .spacing-block { background: var(--leaf); border-radius: 3px; width: 32px; }
+  .spacing-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--mist); text-align: center; }
+
+  /* ─── ARCHITECTURE DIAGRAM ───────────────────────── */
+  .arch-diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .arch-layer {
+    padding: 28px 20px;
+    border-right: 1px solid var(--border);
+  }
+  .arch-layer:last-child { border-right: none; }
+  .arch-layer-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .arch-layer:nth-child(1) { background: #F0FDF4; }
+  .arch-layer:nth-child(1) .arch-layer-name { color: var(--forest); }
+  .arch-layer:nth-child(2) { background: #EEF2FF; }
+  .arch-layer:nth-child(2) .arch-layer-name { color: var(--violet); }
+  .arch-layer:nth-child(3) { background: #FFFBEB; }
+  .arch-layer:nth-child(3) .arch-layer-name { color: #92400E; }
+  .arch-layer:nth-child(4) { background: #FFF1F2; }
+  .arch-layer:nth-child(4) .arch-layer-name { color: #9F1239; }
+  .arch-item {
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    border: 1px solid rgba(0,0,0,0.07);
+    font-family: 'DM Mono', monospace;
+  }
+  .arch-sub {
+    font-size: 11px;
+    color: var(--mist);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    margin-top: 2px;
+  }
+
+  /* ─── TOAST NOTIFICATION ─────────────────────────── */
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--dusk);
+    color: white;
+    border-radius: var(--radius);
+    font-size: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    max-width: 340px;
+  }
+  .toast-icon { font-size: 20px; flex-shrink: 0; }
+  .toast-title { font-weight: 600; }
+  .toast-body { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+  .toast-close { margin-left: auto; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 18px; flex-shrink: 0; }
+
+  /* ─── DIVIDER ────────────────────────────────────── */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* ─── FOOTER NOTE ────────────────────────────────── */
+  .design-footer {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+    gap: 16px;
+  }
+  .design-footer p { font-size: 14px; color: var(--mist); }
+  .design-footer strong { color: var(--ink); }
+
+  /* ─── GRID HELPERS ───────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .flex-center { display: flex; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-20 { margin-bottom: 20px; }
+  .text-sm { font-size: 13px; }
+  .text-muted { color: var(--mist); }
+  .font-mono { font-family: 'DM Mono', monospace; }
+
+  @media (max-width: 900px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr 1fr; }
+    .arch-diagram { grid-template-columns: 1fr 1fr; }
+    .kanban-demo { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .arch-diagram { grid-template-columns: 1fr; }
+    .kanban-demo { grid-template-columns: 1fr; }
+    .type-row { grid-template-columns: 1fr; }
+    .ds-wrapper { padding: 0 16px 60px; }
+    .ds-hero { padding: 48px 20px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════════════════ -->
+<div class="ds-hero">
+  <div class="ds-hero-inner">
+    <div class="ds-hero-tag">⬡ Design System v1.0</div>
+    <h1>Life<em>Planner</em><br>SIM — TALL Stack</h1>
+    <p>Sistem desain komprehensif untuk membangun Personal Information Management System menggunakan Tailwind CSS, Alpine.js, Laravel, dan Livewire.</p>
+    <div class="ds-hero-stack">
+      <div class="stack-pill"><span>🎨</span> Tailwind CSS v3</div>
+      <div class="stack-pill"><span>🏔</span> Alpine.js v3</div>
+      <div class="stack-pill"><span>🔴</span> Laravel 11</div>
+      <div class="stack-pill"><span>⚡</span> Livewire v3</div>
+    </div>
+  </div>
+</div>
+
+<div class="ds-wrapper">
+
+  <!-- ═══ 01. ARCHITECTURE ══════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">01</span>
+      <h2>Arsitektur TALL Stack</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="arch-diagram">
+      <div class="arch-layer">
+        <div class="arch-layer-name">🎨 T — Tailwind</div>
+        <div class="arch-item">utility-first CSS<div class="arch-sub">styling & layout</div></div>
+        <div class="arch-item">JIT Compiler<div class="arch-sub">zero unused CSS</div></div>
+        <div class="arch-item">Custom Theme<div class="arch-sub">warna & font token</div></div>
+        <div class="arch-item">Dark Mode<div class="arch-sub">class-based toggle</div></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-name">🏔 A — Alpine.js</div>
+        <div class="arch-item">x-data / x-model<div class="arch-sub">reactive state</div></div>
+        <div class="arch-item">x-on / x-show<div class="arch-sub">event handling</div></div>
+        <div class="arch-item">x-transition<div class="arch-sub">CSS transitions</div></div>
+        <div class="arch-item">$store / $dispatch<div class="arch-sub">global state</div></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-name">🔴 L — Laravel</div>
+        <div class="arch-item">Eloquent ORM<div class="arch-sub">relasi database</div></div>
+        <div class="arch-item">Sanctum Auth<div class="arch-sub">autentikasi user</div></div>
+        <div class="arch-item">Scheduler<div class="arch-sub">cron job notifikasi</div></div>
+        <div class="arch-item">Policies<div class="arch-sub">otorisasi data</div></div>
+      </div>
+      <div class="arch-layer">
+        <div class="arch-layer-name">⚡ L — Livewire</div>
+        <div class="arch-item">Full-page Components<div class="arch-sub">dashboard, tracker</div></div>
+        <div class="arch-item">wire:model<div class="arch-sub">real-time binding</div></div>
+        <div class="arch-item">wire:poll<div class="arch-sub">auto-refresh</div></div>
+        <div class="arch-item">Lazy Loading<div class="arch-sub">performa optimal</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 02. COLOR SYSTEM ══════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">02</span>
+      <h2>Sistem Warna</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <p class="text-sm text-muted mb-20">Palet terinspirasi dari nuansa alam: tinta, kertas, daun, tanah. Didefinisikan sebagai CSS variables dan dipetakan ke Tailwind custom theme.</p>
+
+    <div style="margin-bottom: 24px;">
+      <div class="text-sm text-muted mb-12" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Neutral — Base Surface</div>
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#0D0D0F"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">ink</span><span class="color-swatch-val">#0D0D0F</span><span class="color-swatch-role">Primary text</span></div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#F5F2ED"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">paper</span><span class="color-swatch-val">#F5F2ED</span><span class="color-swatch-role">Page bg</span></div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#EDE9E1"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">cream</span><span class="color-swatch-val">#EDE9E1</span><span class="color-swatch-role">Secondary bg</span></div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#C8C0B4"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">stone</span><span class="color-swatch-val">#C8C0B4</span><span class="color-swatch-role">Border/divider</span></div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#8A8480"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">mist</span><span class="color-swatch-val">#8A8480</span><span class="color-swatch-role">Muted text</span></div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-block" style="background:#FDFAF6"></div>
+          <div class="color-swatch-info"><span class="color-swatch-name">surface</span><span class="color-swatch-val">#FDFAF6</span><span class="color-swatch-role">Card bg</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <div class="text-sm text-muted mb-12" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Primary — Forest Green (Keuangan & Produktivitas)</div>
+      <div class="color-grid">
+        <div class="color-swatch"><div class="color-swatch-block" style="background:#2D5016"></div><div class="color-swatch-info"><span class="color-swatch-name">forest</span><span class="color-swatch-val">#2D5016</span><span class="color-swatch-role">Primary action</span></div></div>
+        <div class="color-swatch"><div class="color-swatch-block" style="background:#4A7C3F"></div><div class="color-swatch-info"><span class="color-swatch-name">sage</span><span class="color-swatch-val">#4A7C3F</span><span class="color-swatch-role">Hover state</span></div></div>
+        <div class="color-swatch"><div class="color-swatch-block" style="background:#7FB069"></div><div class="color-swatch-info"><span class="color-swatch-name">leaf</span><span class="color-swatch-val">#7FB069</span><span class="color-swatch-role">Accent light</span></div></div>
+        <div class="color-swatch"><div class="color-swatch-block" style="background:#C8E6C0"></div><div class="color-swatch-info"><span class="color-swatch-name">mint</span><span class="color-swatch-val">#C8E6C0</span><span class="color-swatch-role">Badge bg</span></div></div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="gap:24px;">
+      <div>
+        <div class="text-sm text-muted mb-12" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Gold (Savings & Goals)</div>
+        <div class="color-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#C9962A"></div><div class="color-swatch-info"><span class="color-swatch-name">gold</span><span class="color-swatch-val">#C9962A</span></div></div>
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#E8B84B"></div><div class="color-swatch-info"><span class="color-swatch-name">amber</span><span class="color-swatch-val">#E8B84B</span></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-muted mb-12" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Violet (Tasks & OKR)</div>
+        <div class="color-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#3D2B8A"></div><div class="color-swatch-info"><span class="color-swatch-name">violet</span><span class="color-swatch-val">#3D2B8A</span></div></div>
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#8B7FD4"></div><div class="color-swatch-info"><span class="color-swatch-name">lavender</span><span class="color-swatch-val">#8B7FD4</span></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-muted mb-12" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Blush (Kesehatan)</div>
+        <div class="color-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#C45C6A"></div><div class="color-swatch-info"><span class="color-swatch-name">blush</span><span class="color-swatch-val">#C45C6A</span></div></div>
+          <div class="color-swatch"><div class="color-swatch-block" style="background:#1E6B6B"></div><div class="color-swatch-info"><span class="color-swatch-name">teal</span><span class="color-swatch-val">#1E6B6B</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 03. TYPOGRAPHY ════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">03</span>
+      <h2>Tipografi</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="type-specimens">
+      <div class="type-row">
+        <div class="type-meta">
+          <span class="type-label">Display / H1</span>
+          <div class="type-specs">DM Serif Display<br>48–72px · Regular<br>letter-spacing: -0.02em<br>Tailwind: <code>font-serif text-6xl</code></div>
+        </div>
+        <div style="font-family:'DM Serif Display',serif; font-size:clamp(36px,5vw,60px); line-height:1.05; letter-spacing:-0.02em; color:var(--ink)">Rencanakan <em style="color:var(--sage)">hidup</em> terbaik Anda</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">
+          <span class="type-label">Heading / H2</span>
+          <div class="type-specs">DM Serif Display<br>28–36px · Regular<br>Tailwind: <code>font-serif text-3xl</code></div>
+        </div>
+        <div style="font-family:'DM Serif Display',serif; font-size:32px; line-height:1.2; color:var(--ink)">Dashboard Keuangan Bulan Ini</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">
+          <span class="type-label">Body / Base</span>
+          <div class="type-specs">Plus Jakarta Sans<br>15px · Regular 400<br>line-height: 1.6<br>Tailwind: <code>font-sans text-[15px]</code></div>
+        </div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; line-height:1.7; color:var(--ink); max-width:560px">Sistem informasi manajemen pribadi yang mengintegrasikan keuangan, produktivitas, kesehatan, dan kebiasaan harian dalam satu platform terpadu berbasis web.</div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">
+          <span class="type-label">Label / UI</span>
+          <div class="type-specs">Plus Jakarta Sans<br>11–12px · Bold 700<br>uppercase · tracking-wide<br>Tailwind: <code>text-xs font-bold uppercase tracking-widest</code></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--mist)">TOTAL PENGELUARAN BULAN INI</div>
+          <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--forest)">STATUS AKTIF</div>
+        </div>
+      </div>
+
+      <div class="type-row">
+        <div class="type-meta">
+          <span class="type-label">Mono / Code</span>
+          <div class="type-specs">DM Mono<br>12–14px · Regular/Medium<br>Tailwind: <code>font-mono text-sm</code></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace; font-size:14px; color:var(--ink); display:flex; flex-direction:column; gap:6px;">
+          <span>wire:model="amount"</span>
+          <span style="color:var(--sage)">Rp 4.500.000</span>
+          <span style="color:var(--mist)">// Budget surplus: +Rp 1.200.000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 04. COMPONENTS ════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">04</span>
+      <h2>Komponen UI</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="component-grid">
+      <!-- Buttons -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title">Buttons</span>
+          <span class="comp-tag">Alpine.js</span>
+        </div>
+        <div class="comp-body">
+          <div class="btn-row">
+            <button class="btn btn-primary">💾 Simpan</button>
+            <button class="btn btn-secondary">Batal</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-ghost">+ Tambah</button>
+            <button class="btn btn-danger btn-sm">Hapus</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-gold btn-lg">✨ Upgrade Plan</button>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:12px; color:var(--mist); font-family:'DM Mono',monospace">
+            class="btn btn-primary"<br>
+            wire:click="save"<br>
+            wire:loading.attr="disabled"
+          </div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title">Badges & Status</span>
+          <span class="comp-tag">Static</span>
+        </div>
+        <div class="comp-body">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="badge badge-green">✓ Lunas</span>
+            <span class="badge badge-amber">⏳ Pending</span>
+            <span class="badge badge-red">⚠ Overdue</span>
+            <span class="badge badge-blue">🎯 In Progress</span>
+            <span class="badge badge-gray">○ Hold</span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px">
+            <span class="badge badge-green">💰 Income</span>
+            <span class="badge badge-red">📤 Expense</span>
+            <span class="badge badge-blue">🏦 Saving</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title">Form Controls</span>
+          <span class="comp-tag">Livewire</span>
+        </div>
+        <div class="comp-body">
+          <div class="form-group">
+            <label class="form-label">Nama Transaksi</label>
+            <input class="form-input" type="text" placeholder="Gaji Bulanan..." value="">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Jumlah (Rp)</label>
+            <input class="form-input font-mono" type="text" placeholder="0" value="4.500.000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-input form-select">
+              <option>💼 Gaji</option>
+              <option>🏠 Kebutuhan Rumah</option>
+              <option>🎉 Hiburan</option>
+            </select>
+            <span class="form-hint">Pilih kategori yang sesuai</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title">Alerts & Toast</span>
+          <span class="comp-tag">Alpine.js</span>
+        </div>
+        <div class="comp-body">
+          <div class="alert alert-success"><span class="alert-icon">✅</span><span>Transaksi berhasil disimpan!</span></div>
+          <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Budget kategori Hiburan hampir habis (85%)</span></div>
+          <div class="alert alert-error"><span class="alert-icon">❌</span><span>Tagihan Listrik overdue 3 hari</span></div>
+          <div class="alert alert-info"><span class="alert-icon">💡</span><span>Tambahkan target tabungan baru</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 05. STAT CARDS ════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">05</span>
+      <h2>Stat Cards & Progress</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="stat-card">
+        <div class="stat-label">💰 Total Income</div>
+        <div class="stat-value" style="color:var(--forest)">Rp8,5jt</div>
+        <div class="stat-trend trend-up">↑ +12% dari bulan lalu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">📤 Total Expenses</div>
+        <div class="stat-value" style="color:var(--blush)">Rp5,2jt</div>
+        <div class="stat-trend trend-down">↓ -5% efisiensi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">🏦 Savings Rate</div>
+        <div class="stat-value" style="color:var(--gold)">38,8%</div>
+        <div class="stat-sub">target: 40% · selisih 1,2%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">✅ Habits Done</div>
+        <div class="stat-value" style="color:var(--violet)">5/7</div>
+        <div class="stat-trend trend-up">🔥 streak 12 hari</div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="module-card mc-green" style="padding:20px 24px;">
+        <div class="stat-label">🎯 Goal: Beli Laptop</div>
+        <div style="font-family:'DM Serif Display',serif; font-size:24px; margin:8px 0 12px;">Rp7,2 jt / Rp15 jt</div>
+        <div class="progress-bar mb-12"><div class="progress-fill pf-green" style="width:48%"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--mist)"><span>48% tercapai</span><span>Target: Jul 2026</span></div>
+      </div>
+      <div class="module-card mc-gold" style="padding:20px 24px;">
+        <div class="stat-label">💼 Budget Hiburan</div>
+        <div style="font-family:'DM Serif Display',serif; font-size:24px; margin:8px 0 12px;">Rp425rb / Rp500rb</div>
+        <div class="progress-bar mb-12"><div class="progress-fill pf-gold" style="width:85%"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--gold); font-weight:600">⚠ 85% terpakai</span><span style="color:var(--mist)">sisa Rp75rb</span></div>
+      </div>
+      <div class="module-card mc-violet" style="padding:20px 24px;">
+        <div class="stat-label">📋 Tasks This Week</div>
+        <div style="font-family:'DM Serif Display',serif; font-size:24px; margin:8px 0 12px;">12 dari 18 selesai</div>
+        <div class="progress-bar mb-12"><div class="progress-fill pf-violet" style="width:67%"></div></div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--mist)"><span>67% completion rate</span><span>3 overdue</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 06. NAVIGATION ════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">06</span>
+      <h2>Navigasi Sidebar</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+      <div class="nav-demo">
+        <div class="nav-logo">Life<span>Planner</span></div>
+
+        <div class="nav-section-title">Overview</div>
+        <div class="nav-item active"><span class="icon">⬡</span> Dashboard <span class="nav-badge">!</span></div>
+
+        <div class="nav-section-title">Keuangan</div>
+        <div class="nav-item"><span class="icon">💰</span> Budget</div>
+        <div class="nav-item"><span class="icon">📊</span> Transaksi</div>
+        <div class="nav-item"><span class="icon">🏦</span> Tabungan</div>
+        <div class="nav-item"><span class="icon">📅</span> Tagihan <span class="nav-badge">3</span></div>
+
+        <div class="nav-section-title">Produktivitas</div>
+        <div class="nav-item"><span class="icon">🎯</span> Goal Tracker</div>
+        <div class="nav-item"><span class="icon">✅</span> To-Do List</div>
+
+        <div class="nav-section-title">Gaya Hidup</div>
+        <div class="nav-item"><span class="icon">🔄</span> Habit Tracker</div>
+        <div class="nav-item"><span class="icon">🥗</span> Meal Planner</div>
+        <div class="nav-item"><span class="icon">⚖️</span> Weight Log</div>
+        <div class="nav-item"><span class="icon">🛒</span> Grocery List</div>
+      </div>
+
+      <div style="flex:1; min-width:280px;">
+        <p class="text-sm text-muted" style="margin-bottom:16px; line-height:1.7;">Sidebar dibuat sebagai <strong>Blade component</strong> yang persistent. Kondisi <code>active</code> dikelola via <code>Route::currentRouteName()</code>. Notifikasi badge menggunakan <code>wire:poll.5s</code> untuk update real-time.</p>
+        <div class="spec-block">
+          <div class="spec-filename">resources/views/components/sidebar.blade.php</div>
+          <div class="spec-code"><span class="sc-tag">&lt;nav</span> <span class="sc-attr">x-data</span>=<span class="sc-string">"{ open: false }"</span><span class="sc-tag">&gt;</span>
+  <span class="sc-tag">&lt;x-nav-item</span>
+    <span class="sc-attr">route</span>=<span class="sc-string">"dashboard"</span>
+    <span class="sc-attr">icon</span>=<span class="sc-string">"⬡"</span>
+    <span class="sc-attr">label</span>=<span class="sc-string">"Dashboard"</span>
+    <span class="sc-attr">:badge</span>=<span class="sc-string">"$alerts->count()"</span>
+  <span class="sc-tag">/&gt;</span>
+<span class="sc-tag">&lt;/nav&gt;</span>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 07. HABIT MATRIX ══════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">07</span>
+      <h2>Habit Tracker Matrix</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="module-card mc-green" style="padding:28px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+          <h3 style="font-family:'DM Serif Display',serif; font-size:22px; margin-bottom:4px;">Kebiasaan Minggu Ini</h3>
+          <p style="font-size:13px; color:var(--mist)">Klik sel untuk toggle · Disimpan otomatis via Livewire</p>
+        </div>
+        <span class="badge badge-green">🔥 Streak terbaik: 12 hari</span>
+      </div>
+      <div class="habit-matrix">
+        <div></div>
+        <div class="hm-header">Sen</div><div class="hm-header">Sel</div><div class="hm-header">Rab</div><div class="hm-header">Kam</div><div class="hm-header">Jum</div><div class="hm-header" style="color:var(--sage); font-weight:800">Sab ●</div><div class="hm-header">Min</div>
+
+        <div class="hm-label">🧘 Meditasi</div>
+        <div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-today"></div><div class="hm-cell hm-empty"></div>
+
+        <div class="hm-label">🏃 Olahraga</div>
+        <div class="hm-cell hm-done">✓</div><div class="hm-cell hm-empty"></div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-empty"></div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-today"></div><div class="hm-cell hm-empty"></div>
+
+        <div class="hm-label">📚 Baca Buku</div>
+        <div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-today"></div><div class="hm-cell hm-empty"></div>
+
+        <div class="hm-label">💧 Minum Air</div>
+        <div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-empty"></div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-done">✓</div><div class="hm-cell hm-today"></div><div class="hm-cell hm-empty"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 08. KANBAN ════════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">08</span>
+      <h2>Kanban Board (To-Do)</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="kanban-demo">
+      <div class="kanban-col">
+        <div class="kanban-col-header"><span>To Do</span><span class="kanban-count">3</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-tag" style="background:#EDE9FE; color:var(--violet)">🔴 Very High</div>
+          <div class="kanban-card-title">Setup akun investasi reksa dana</div>
+          <div class="kanban-card-meta">📅 Due: 20 Mei · 💼 Keuangan</div>
+        </div>
+        <div class="kanban-card">
+          <div class="kanban-card-tag" style="background:#FEF3C7; color:#92400E">🟡 Medium</div>
+          <div class="kanban-card-title">Bayar tagihan BPJS</div>
+          <div class="kanban-card-meta">📅 Due: 25 Mei · 🏠 Rutin</div>
+        </div>
+        <div class="kanban-card">
+          <div class="kanban-card-tag" style="background:#F0FDF4; color:var(--forest)">🟢 Low</div>
+          <div class="kanban-card-title">Update wishlist belanja bulanan</div>
+          <div class="kanban-card-meta">📅 Due: 30 Mei</div>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header"><span>In Progress</span><span class="kanban-count">2</span></div>
+        <div class="kanban-card" style="border-left:3px solid var(--violet)">
+          <div class="kanban-card-tag" style="background:#EDE9FE; color:var(--violet)">🔴 High</div>
+          <div class="kanban-card-title">Buat laporan pengeluaran Q2</div>
+          <div class="kanban-card-meta">📅 Due: 16 Mei · 📊 Analisis</div>
+        </div>
+        <div class="kanban-card" style="border-left:3px solid var(--violet)">
+          <div class="kanban-card-tag" style="background:#FEF3C7; color:#92400E">🟡 Medium</div>
+          <div class="kanban-card-title">Riset laptop baru untuk kerja</div>
+          <div class="kanban-card-meta">📅 Due: 22 Mei · 🎯 Goals</div>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header"><span>Hold</span><span class="kanban-count">1</span></div>
+        <div class="kanban-card" style="opacity:0.65">
+          <div class="kanban-card-tag" style="background:var(--cream); color:var(--mist)">⏸ On Hold</div>
+          <div class="kanban-card-title">Evaluasi paket internet</div>
+          <div class="kanban-card-meta">📅 Due: Jun · ⏳ Menunggu</div>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header"><span>Done</span><span class="kanban-count">5</span></div>
+        <div class="kanban-card" style="opacity:0.5; text-decoration:line-through;">
+          <div class="kanban-card-title">Beli asuransi kesehatan</div>
+          <div class="kanban-card-meta">✅ 10 Mei</div>
+        </div>
+        <div class="kanban-card" style="opacity:0.5; text-decoration:line-through;">
+          <div class="kanban-card-title">Alokasi bonus ke tabungan darurat</div>
+          <div class="kanban-card-meta">✅ 8 Mei</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 09. DATA TABLE ════════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">09</span>
+      <h2>Tabel Transaksi</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
+      <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <h3 style="font-family:'DM Serif Display',serif; font-size:20px;">Riwayat Transaksi</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input class="form-input" style="width:200px; padding:8px 12px;" placeholder="Cari transaksi...">
+          <button class="btn btn-primary btn-sm">+ Tambah</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Keterangan</th>
+              <th>Kategori</th>
+              <th>Tipe</th>
+              <th style="text-align:right">Jumlah</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-mono" style="font-size:13px; color:var(--mist)">15 Mei</td>
+              <td><strong>Gaji Bulanan</strong></td>
+              <td><span class="badge badge-green">💼 Gaji</span></td>
+              <td><span class="badge badge-green">Income</span></td>
+              <td class="font-mono" style="text-align:right; color:var(--forest); font-weight:600">+Rp 8.500.000</td>
+              <td><span class="badge badge-green">✓ Lunas</span></td>
+              <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+            </tr>
+            <tr>
+              <td class="font-mono" style="font-size:13px; color:var(--mist)">14 Mei</td>
+              <td><strong>Belanja Groceries</strong></td>
+              <td><span class="badge badge-amber">🛒 Groceries</span></td>
+              <td><span class="badge badge-red">Expense</span></td>
+              <td class="font-mono" style="text-align:right; color:var(--blush); font-weight:600">-Rp 520.000</td>
+              <td><span class="badge badge-green">✓ Lunas</span></td>
+              <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+            </tr>
+            <tr>
+              <td class="font-mono" style="font-size:13px; color:var(--mist)">20 Mei</td>
+              <td><strong>Tagihan Listrik PLN</strong></td>
+              <td><span class="badge badge-blue">🏠 Utilitas</span></td>
+              <td><span class="badge badge-red">Bill</span></td>
+              <td class="font-mono" style="text-align:right; color:var(--blush); font-weight:600">-Rp 450.000</td>
+              <td><span class="badge badge-amber">⏳ Pending</span></td>
+              <td><button class="btn btn-primary btn-sm">Bayar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:14px 24px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:13px; color:var(--mist)">Menampilkan 3 dari 47 transaksi</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm">← Prev</button>
+          <button class="btn btn-primary btn-sm">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 10. MODULE OVERVIEW ════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">10</span>
+      <h2>Modul Aplikasi</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="component-grid">
+      <div class="module-card mc-green">
+        <div class="module-card-icon mi-green">💰</div>
+        <h3>Manajemen Keuangan</h3>
+        <p>Budget bulanan, tracking transaksi, pengingat tagihan, dan goal tabungan terintegrasi dalam satu modul.</p>
+        <ul class="feature-list">
+          <li>Budget allocation dengan pie chart Livewire</li>
+          <li>Quick-entry transaksi via Alpine modal</li>
+          <li>Bill reminder via Laravel Scheduler</li>
+          <li>Savings progress tracker visual</li>
+        </ul>
+      </div>
+      <div class="module-card mc-violet">
+        <div class="module-card-icon mi-violet">🎯</div>
+        <h3>Produktivitas & OKR</h3>
+        <p>Kanban board interaktif untuk To-Do, breakdown goal besar menjadi langkah kecil yang terukur.</p>
+        <ul class="feature-list">
+          <li>Drag-and-drop Kanban (Alpine.js + Sortable.js)</li>
+          <li>Goal → Step breakdown dengan progress %</li>
+          <li>Priority filter & due date sorting</li>
+          <li>Livewire real-time status update</li>
+        </ul>
+      </div>
+      <div class="module-card mc-teal">
+        <div class="module-card-icon mi-teal">🔄</div>
+        <h3>Habit & Kesehatan</h3>
+        <p>Matrix kebiasaan harian, log berat badan dengan grafik tren, dan meal planner mingguan.</p>
+        <ul class="feature-list">
+          <li>Habit matrix click-to-toggle, auto-save</li>
+          <li>Weight trend chart (Chart.js via Alpine)</li>
+          <li>Meal planner → auto grocery generator</li>
+          <li>Streak calculation & badge milestone</li>
+        </ul>
+      </div>
+      <div class="module-card mc-gold">
+        <div class="module-card-icon mi-gold">⬡</div>
+        <h3>Dashboard Utama</h3>
+        <p>Command center yang merangkum semua modul dalam satu halaman — keuangan, tasks, habits.</p>
+        <ul class="feature-list">
+          <li>Financial overview donut chart</li>
+          <li>Today's focus: tasks + meals hari ini</li>
+          <li>Habit streak mini-matrix</li>
+          <li>Bill due-soon alerts panel</li>
+        </ul>
+      </div>
+      <div class="module-card mc-blush">
+        <div class="module-card-icon mi-blush">🛒</div>
+        <h3>Grocery & Meal</h3>
+        <p>Meal planner mingguan yang secara otomatis mengkompilasi bahan menjadi grocery list.</p>
+        <ul class="feature-list">
+          <li>Weekly meal calendar drag-plan</li>
+          <li>Auto-generate grocery dari meal plan</li>
+          <li>Checklist belanja mobile-friendly</li>
+          <li>Kategori bahan (protein, sayur, buah)</li>
+        </ul>
+      </div>
+      <div class="module-card" style="border:2px dashed var(--border); background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:240px; text-align:center; gap:12px; padding:32px;">
+        <div style="font-size:36px;">🔔</div>
+        <h3 style="font-family:'DM Serif Display',serif; font-size:20px;">Notifikasi & Alert</h3>
+        <p style="font-size:14px; color:var(--mist)">Laravel Scheduler + email/Telegram bot untuk reminder tagihan, overdue tasks, dan habit streak.</p>
+        <span class="badge badge-gray">Planned v1.1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 11. LIVEWIRE SPEC ══════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">11</span>
+      <h2>Livewire Component Patterns</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="spec-block">
+        <div class="spec-filename">app/Livewire/Finance/QuickEntry.php</div>
+        <div class="spec-code"><span class="sc-keyword">class</span> <span class="sc-class">QuickEntry</span> <span class="sc-keyword">extends</span> <span class="sc-class">Component</span>
+{
+    <span class="sc-keyword">public</span> <span class="sc-class">string</span> <span class="sc-attr">$description</span> = <span class="sc-string">''</span>;
+    <span class="sc-keyword">public</span> <span class="sc-class">int</span>    <span class="sc-attr">$amount</span>      = <span class="sc-string">0</span>;
+    <span class="sc-keyword">public</span> <span class="sc-class">string</span> <span class="sc-attr">$type</span>        = <span class="sc-string">'expense'</span>;
+
+    <span class="sc-keyword">protected</span> <span class="sc-attr">$rules</span> = [
+        <span class="sc-string">'description'</span> => <span class="sc-string">'required|max:255'</span>,
+        <span class="sc-string">'amount'</span>      => <span class="sc-string">'required|numeric|min:1'</span>,
+    ];
+
+    <span class="sc-keyword">public function</span> <span class="sc-method">save</span>(): <span class="sc-class">void</span>
+    {
+        <span class="sc-attr">$this</span>-><span class="sc-method">validate</span>();
+        <span class="sc-class">Transaction</span>::<span class="sc-method">create</span>([
+            <span class="sc-string">'user_id'</span>     => <span class="sc-method">auth</span>()->id(),
+            <span class="sc-string">'description'</span> => <span class="sc-attr">$this</span>->description,
+            <span class="sc-string">'amount'</span>      => <span class="sc-attr">$this</span>->amount,
+            <span class="sc-string">'type'</span>        => <span class="sc-attr">$this</span>->type,
+        ]);
+        <span class="sc-attr">$this</span>-><span class="sc-method">dispatch</span>(<span class="sc-string">'transaction-saved'</span>);
+        <span class="sc-attr">$this</span>-><span class="sc-method">reset</span>();
+    }
+}</div>
+      </div>
+
+      <div class="spec-block">
+        <div class="spec-filename">resources/views/livewire/habit/matrix.blade.php</div>
+        <div class="spec-code"><span class="sc-tag">&lt;div</span> <span class="sc-attr">wire:poll.60s</span><span class="sc-tag">&gt;</span>
+  @<span class="sc-keyword">foreach</span>(<span class="sc-attr">$habits</span> <span class="sc-keyword">as</span> <span class="sc-attr">$habit</span>)
+  <span class="sc-tag">&lt;div</span> <span class="sc-attr">class</span>=<span class="sc-string">"habit-row"</span><span class="sc-tag">&gt;</span>
+    <span class="sc-tag">&lt;span&gt;</span>{{ <span class="sc-attr">$habit</span>->emoji }} {{ <span class="sc-attr">$habit</span>->name }}<span class="sc-tag">&lt;/span&gt;</span>
+    @<span class="sc-keyword">foreach</span>(<span class="sc-attr">$weekDays</span> <span class="sc-keyword">as</span> <span class="sc-attr">$day</span>)
+    <span class="sc-tag">&lt;div</span>
+      <span class="sc-attr">wire:click</span>=<span class="sc-string">"toggle({{ $habit->id }}, '{{ $day }}')"</span>
+      <span class="sc-attr">class</span>=<span class="sc-string">"hm-cell {{ $this->isDone($habit->id, $day) ? 'hm-done' : '' }}"</span>
+    <span class="sc-tag">&gt;</span>
+      @<span class="sc-keyword">if</span>(<span class="sc-attr">$this</span>-><span class="sc-method">isDone</span>(<span class="sc-attr">$habit</span>->id, <span class="sc-attr">$day</span>)) ✓ @<span class="sc-keyword">endif</span>
+    <span class="sc-tag">&lt;/div&gt;</span>
+    @<span class="sc-keyword">endforeach</span>
+  <span class="sc-tag">&lt;/div&gt;</span>
+  @<span class="sc-keyword">endforeach</span>
+<span class="sc-tag">&lt;/div&gt;</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 12. SPACING SCALE ═════════════════════════════════════════════ -->
+  <div class="ds-section">
+    <div class="ds-section-label">
+      <span class="section-num">12</span>
+      <h2>Spacing & Radius Scale</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="module-card" style="padding:28px 32px; margin-bottom:20px;">
+      <div class="text-sm text-muted mb-20" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Spacing Scale (Tailwind units)</div>
+      <div class="spacing-row">
+        <div class="spacing-item"><div class="spacing-block" style="height:4px"></div><div class="spacing-label">4px<br>p-1</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:8px"></div><div class="spacing-label">8px<br>p-2</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:12px"></div><div class="spacing-label">12px<br>p-3</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:16px"></div><div class="spacing-label">16px<br>p-4</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:20px"></div><div class="spacing-label">20px<br>p-5</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:24px"></div><div class="spacing-label">24px<br>p-6</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:32px"></div><div class="spacing-label">32px<br>p-8</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:48px"></div><div class="spacing-label">48px<br>p-12</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:64px"></div><div class="spacing-label">64px<br>p-16</div></div>
+        <div class="spacing-item"><div class="spacing-block" style="height:80px"></div><div class="spacing-label">80px<br>p-20</div></div>
+      </div>
+    </div>
+
+    <div class="module-card" style="padding:28px 32px;">
+      <div class="text-sm text-muted mb-20" style="font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Border Radius Scale</div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end;">
+        <div style="text-align:center">
+          <div style="width:48px; height:48px; background:var(--sage); border-radius:4px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">4px<br>sm</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:56px; height:56px; background:var(--sage); border-radius:8px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">8px<br>md</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:64px; height:64px; background:var(--sage); border-radius:12px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">12px<br>base</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:72px; height:72px; background:var(--sage); border-radius:20px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">20px<br>lg</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:80px; height:80px; background:var(--sage); border-radius:32px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">32px<br>xl</div>
+        </div>
+        <div style="text-align:center">
+          <div style="width:88px; height:88px; background:var(--sage); border-radius:100px; margin:0 auto 8px;"></div>
+          <div class="spacing-label">100px<br>pill</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="design-footer">
+    <div>
+      <p><strong>LifePlanner SIM</strong> · TALL Stack Design System</p>
+      <p>Tailwind CSS · Alpine.js · Laravel 11 · Livewire v3 · MySQL</p>
+    </div>
+    <div style="text-align:right">
+      <p>Design System v1.0</p>
+      <p style="font-family:'DM Mono',monospace; font-size:12px; color:var(--stone)">Mei 2026</p>
+    </div>
+  </div>
+
+</div><!-- end ds-wrapper -->
+</body>
+</html>

@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LifePlanner — Database Schema & ERD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --ink:       #1a1916;
+    --ink-2:     #3d3c38;
+    --ink-3:     #6b6a65;
+    --ink-4:     #9b9a95;
+    --paper:     #faf9f6;
+    --paper-2:   #f0ede6;
+    --paper-3:   #e4e0d7;
+    --rule:      #d4d0c8;
+    --accent:    #2d5a3d;
+    --accent-2:  #4a8c60;
+    --accent-bg: #ecf4ee;
+    --blue:      #1a4a7a;
+    --blue-bg:   #e8f0f8;
+    --amber:     #8a5a00;
+    --amber-bg:  #fef3e2;
+    --coral:     #8a2a1a;
+    --coral-bg:  #fdecea;
+    --purple:    #4a2a7a;
+    --purple-bg: #f0ebf8;
+    --teal:      #1a5a5a;
+    --teal-bg:   #e6f4f4;
+
+    --mono: 'DM Mono', monospace;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --serif: 'DM Serif Display', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: var(--ink);
+    color: #fff;
+    padding: 56px 64px 48px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    border-bottom: 4px solid var(--accent-2);
+  }
+  .cover-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.6);
+    border: 1px solid rgba(255,255,255,.15);
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .cover h1 { font-family: var(--serif); font-size: 42px; line-height: 1.1; font-weight: 400; letter-spacing: -.01em; }
+  .cover h1 span { color: var(--accent-2); font-style: italic; }
+  .cover-sub { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 10px; }
+  .cover-meta { text-align: right; }
+  .cover-meta p { font-size: 11px; color: rgba(255,255,255,.4); font-family: var(--mono); line-height: 2; }
+  .cover-meta strong { color: rgba(255,255,255,.7); }
+
+  /* ── Layout ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+  /* ── Section headers ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 0 20px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 28px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-4);
+    background: var(--paper-3);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .section-header h2 {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -.01em;
+  }
+  .section-header p {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  /* ── Module legend ── */
+  .module-legend {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    padding: 20px 0 32px;
+  }
+  .module-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .module-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .mc-core    { background: var(--paper-2); color: var(--ink-2); border-color: var(--rule); }
+  .mc-core .dot { background: var(--ink-3); }
+  .mc-finance { background: var(--accent-bg); color: var(--accent); border-color: #c0dbc8; }
+  .mc-finance .dot { background: var(--accent-2); }
+  .mc-prod    { background: var(--blue-bg); color: var(--blue); border-color: #b0c8e4; }
+  .mc-prod .dot { background: var(--blue); }
+  .mc-habit   { background: var(--purple-bg); color: var(--purple); border-color: #c8b8e8; }
+  .mc-habit .dot { background: var(--purple); }
+
+  /* ── ERD container ── */
+  .erd-wrap {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 32px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  .erd-wrap .mermaid { min-width: 900px; }
+
+  .erd-caption {
+    font-size: 11px;
+    color: var(--ink-4);
+    font-family: var(--mono);
+    text-align: center;
+    padding-bottom: 24px;
+  }
+
+  /* ── Data dictionary ── */
+  .dd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+    gap: 20px;
+    padding-bottom: 40px;
+  }
+
+  .table-card {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .table-card-header {
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .table-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .02em;
+  }
+  .table-desc {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+  .table-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* module colors for headers */
+  .tc-core    { background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .tc-core .table-badge { background: var(--paper-3); color: var(--ink-3); }
+
+  .tc-finance { background: var(--accent-bg); border-bottom: 1px solid #c0dbc8; }
+  .tc-finance .table-badge { background: #c0dbc8; color: var(--accent); }
+
+  .tc-prod    { background: var(--blue-bg); border-bottom: 1px solid #b0c8e4; }
+  .tc-prod .table-badge { background: #b0c8e4; color: var(--blue); }
+
+  .tc-habit   { background: var(--purple-bg); border-bottom: 1px solid #c8b8e8; }
+  .tc-habit .table-badge { background: #c8b8e8; color: var(--purple); }
+
+  /* column table */
+  .col-table { width: 100%; border-collapse: collapse; }
+  .col-table thead tr th {
+    font-size: 10px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-4);
+    padding: 7px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--paper-3);
+    background: var(--paper);
+  }
+  .col-table tbody tr td {
+    padding: 7px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--paper-2);
+    vertical-align: top;
+  }
+  .col-table tbody tr:last-child td { border-bottom: none; }
+  .col-table tbody tr:hover td { background: var(--paper); }
+
+  .col-name { font-family: var(--mono); font-weight: 500; color: var(--ink-2); }
+  .col-type { font-family: var(--mono); color: var(--ink-4); font-size: 11px; }
+  .col-note { color: var(--ink-3); font-size: 11px; }
+
+  .tag-pk  { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: var(--amber-bg); color: var(--amber); margin-right: 4px; }
+  .tag-fk  { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: var(--blue-bg); color: var(--blue); margin-right: 4px; }
+  .tag-uk  { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: var(--teal-bg); color: var(--teal); margin-right: 4px; }
+  .tag-idx { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: var(--paper-2); color: var(--ink-4); margin-right: 4px; }
+
+  /* ── Relationships ── */
+  .rel-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+  .rel-table thead tr th {
+    font-size: 10px; font-family: var(--mono); text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-4); padding: 10px 16px;
+    text-align: left; border-bottom: 2px solid var(--rule); background: var(--paper-2);
+  }
+  .rel-table tbody tr td {
+    padding: 10px 16px; font-size: 12px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  .rel-table tbody tr:hover td { background: var(--paper-2); }
+  .rel-from, .rel-to { font-family: var(--mono); font-weight: 500; }
+  .rel-card {
+    font-family: var(--mono); font-size: 11px;
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--paper-2); color: var(--ink-3);
+    white-space: nowrap;
+  }
+
+  /* ── Index recommendations ── */
+  .index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+    padding-bottom: 40px;
+  }
+  .index-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px 16px;
+    background: #fff;
+  }
+  .index-card .tname { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 8px; }
+  .index-card .idx-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 4px 0; border-bottom: 1px solid var(--paper-2);
+    font-size: 12px;
+  }
+  .index-card .idx-row:last-child { border-bottom: none; }
+  .index-card .idx-cols { font-family: var(--mono); color: var(--blue); flex: 1; }
+  .index-card .idx-reason { color: var(--ink-3); font-size: 11px; }
+
+  /* ── ENUM reference ── */
+  .enum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; padding-bottom: 40px; }
+  .enum-card { border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: #fff; }
+  .enum-card-head { padding: 10px 14px; background: var(--paper-2); border-bottom: 1px solid var(--rule); }
+  .enum-card-head .ename { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .enum-card-head .etable { font-size: 11px; color: var(--ink-3); }
+  .enum-val { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-bottom: 1px solid var(--paper-2); font-size: 12px; }
+  .enum-val:last-child { border-bottom: none; }
+  .ev-code { font-family: var(--mono); font-size: 11px; font-weight: 500; min-width: 100px; color: var(--ink-2); }
+  .ev-desc { color: var(--ink-3); font-size: 11px; }
+  .ev-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,.4);
+    padding: 28px 64px;
+    font-size: 11px;
+    font-family: var(--mono);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 48px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div>
+    <div class="cover-badge">LP-DB-SCHEMA-2026-001</div>
+    <h1>LifePlanner<br><span>Database Schema</span> & ERD</h1>
+    <p class="cover-sub">Entity Relationship Diagram — TALL Stack Implementation · MySQL 8.0+</p>
+  </div>
+  <div class="cover-meta">
+    <p><strong>Versi</strong> 1.0</p>
+    <p><strong>Tanggal</strong> Mei 2026</p>
+    <p><strong>Status</strong> DRAFT</p>
+    <p><strong>Tabel</strong> 15</p>
+    <p><strong>Modul</strong> 5</p>
+    <p><strong>Referensi</strong> LP-PRD-BRD-2026-001</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Section 1: ERD Overview -->
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div>
+      <h2>Entity Relationship Diagram</h2>
+      <p>Skema relasional lengkap — semua 15 tabel dan hubungan antar entitas</p>
+    </div>
+  </div>
+
+  <div class="module-legend">
+    <div class="module-chip mc-core"><div class="dot"></div>Core</div>
+    <div class="module-chip mc-finance"><div class="dot"></div>Keuangan</div>
+    <div class="module-chip mc-prod"><div class="dot"></div>Produktivitas</div>
+    <div class="module-chip mc-habit"><div class="dot"></div>Habit &amp; Kesehatan</div>
+  </div>
+
+  <!-- ERD Module 1: Core + Finance -->
+  <p style="font-size:12px;color:var(--ink-3);font-family:var(--mono);margin-bottom:10px;">— Modul Core &amp; Keuangan</p>
+  <div class="erd-wrap">
+    <div class="mermaid" id="erd-finance">
+erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+    string password_hash
+    string currency
+    timestamp created_at
+    timestamp updated_at
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+    string icon
+    timestamp created_at
+  }
+  BUDGETS {
+    bigint id PK
+    bigint user_id FK
+    date period_start
+    date period_end
+    decimal starting_balance
+    boolean is_active
+    timestamp created_at
+  }
+  BUDGET_ALLOCATIONS {
+    bigint id PK
+    bigint budget_id FK
+    bigint category_id FK
+    decimal allocated_amount
+    timestamp created_at
+    timestamp updated_at
+  }
+  TRANSACTIONS {
+    bigint id PK
+    bigint budget_id FK
+    bigint user_id FK
+    enum type
+    bigint category_id FK
+    bigint savings_goal_id FK
+    decimal amount
+    string description
+    date transaction_date
+    date due_date
+    enum status
+    text notes
+    timestamp created_at
+    timestamp updated_at
+  }
+  SAVINGS_GOALS {
+    bigint id PK
+    bigint user_id FK
+    string goal_name
+    decimal target_amount
+    decimal current_saved
+    date target_date
+    boolean is_achieved
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  USERS ||--o{ CATEGORIES : "has"
+  USERS ||--o{ BUDGETS : "creates"
+  USERS ||--o{ SAVINGS_GOALS : "sets"
+  USERS ||--o{ TRANSACTIONS : "owns"
+  BUDGETS ||--o{ TRANSACTIONS : "contains"
+  BUDGETS ||--o{ BUDGET_ALLOCATIONS : "allocates"
+  CATEGORIES ||--o{ TRANSACTIONS : "classifies"
+  CATEGORIES ||--o{ BUDGET_ALLOCATIONS : "referenced in"
+  SAVINGS_GOALS ||--o{ TRANSACTIONS : "receives saving"
+    </div>
+  </div>
+  <p class="erd-caption">Diagram 1 of 3 — users · categories · budgets · budget_allocations · transactions · savings_goals</p>
+
+  <!-- ERD Module 2: Productivity -->
+  <p style="font-size:12px;color:var(--ink-3);font-family:var(--mono);margin-bottom:10px;margin-top:24px;">— Modul Produktivitas</p>
+  <div class="erd-wrap">
+    <div class="mermaid" id="erd-prod">
+erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+  }
+  GOALS {
+    bigint id PK
+    bigint user_id FK
+    string title
+    text why
+    text challenges
+    string reward
+    enum status
+    date due_date
+    decimal progress_pct
+    timestamp created_at
+    timestamp updated_at
+  }
+  GOAL_STEPS {
+    bigint id PK
+    bigint goal_id FK
+    string step_name
+    date due_date
+    boolean is_completed
+    int sort_order
+    timestamp created_at
+    timestamp updated_at
+  }
+  TODO_LISTS {
+    bigint id PK
+    bigint user_id FK
+    string task_name
+    enum status
+    enum priority
+    bigint category_id FK
+    date due_date
+    text notes
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  USERS ||--o{ GOALS : "creates"
+  USERS ||--o{ TODO_LISTS : "manages"
+  GOALS ||--o{ GOAL_STEPS : "broken into"
+  CATEGORIES ||--o{ TODO_LISTS : "tags"
+    </div>
+  </div>
+  <p class="erd-caption">Diagram 2 of 3 — goals · goal_steps · todo_lists</p>
+
+  <!-- ERD Module 3: Habit & Health -->
+  <p style="font-size:12px;color:var(--ink-3);font-family:var(--mono);margin-bottom:10px;margin-top:24px;">— Modul Habit &amp; Kesehatan</p>
+  <div class="erd-wrap">
+    <div class="mermaid" id="erd-habit">
+erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+  }
+  HABITS {
+    bigint id PK
+    bigint user_id FK
+    string habit_name
+    string emoji
+    boolean is_archived
+    int current_streak
+    int longest_streak
+    timestamp created_at
+  }
+  HABIT_LOGS {
+    bigint id PK
+    bigint habit_id FK
+    date date
+    boolean is_checked
+    timestamp created_at
+    timestamp updated_at
+  }
+  WEIGHT_LOGS {
+    bigint id PK
+    bigint user_id FK
+    date date
+    decimal weight
+    enum unit
+    timestamp created_at
+    timestamp updated_at
+  }
+  MEAL_PLANNERS {
+    bigint id PK
+    bigint user_id FK
+    date date
+    enum meal_time
+    string description
+    timestamp created_at
+    timestamp updated_at
+  }
+  GROCERY_LISTS {
+    bigint id PK
+    bigint user_id FK
+    date week_start
+    string item_name
+    decimal quantity
+    string unit
+    bigint category_id FK
+    boolean is_bought
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  USERS ||--o{ HABITS : "tracks"
+  USERS ||--o{ WEIGHT_LOGS : "records"
+  USERS ||--o{ MEAL_PLANNERS : "plans"
+  USERS ||--o{ GROCERY_LISTS : "generates"
+  HABITS ||--o{ HABIT_LOGS : "logged in"
+  CATEGORIES ||--o{ GROCERY_LISTS : "tags"
+    </div>
+  </div>
+  <p class="erd-caption">Diagram 3 of 3 — habits · habit_logs · weight_logs · meal_planners · grocery_lists</p>
+
+
+  <!-- Section 2: Data Dictionary -->
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div>
+      <h2>Data Dictionary</h2>
+      <p>Spesifikasi lengkap setiap tabel, kolom, tipe data, dan constraint</p>
+    </div>
+  </div>
+
+  <div class="dd-grid">
+
+    <!-- users -->
+    <div class="table-card">
+      <div class="table-card-header tc-core">
+        <div>
+          <div class="table-name">users</div>
+          <div class="table-desc">Data akun pengguna tunggal sistem</div>
+        </div>
+        <div class="table-badge">Core</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note">Primary key</td></tr>
+          <tr><td class="col-name">name</td><td class="col-type">VARCHAR(100)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama lengkap pengguna</td></tr>
+          <tr><td class="col-name"><span class="tag-uk">UK</span>email</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NOT NULL, UNIQUE</td><td class="col-note">Email login</td></tr>
+          <tr><td class="col-name">password</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NOT NULL</td><td class="col-note">bcrypt hash, cost≥12</td></tr>
+          <tr><td class="col-name">currency</td><td class="col-type">VARCHAR(3)</td><td class="col-note">DEFAULT 'IDR'</td><td class="col-note">Kode mata uang ISO 4217</td></tr>
+          <tr><td class="col-name">remember_token</td><td class="col-type">VARCHAR(100)</td><td class="col-note">NULLABLE</td><td class="col-note">Laravel remember-me token</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- categories -->
+    <div class="table-card">
+      <div class="table-card-header tc-core">
+        <div>
+          <div class="table-name">categories</div>
+          <div class="table-desc">Kategori fleksibel untuk transaksi, todo, dan grocery</div>
+        </div>
+        <div class="table-badge">Core</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">name</td><td class="col-type">VARCHAR(80)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama kategori (mis. Makan, Transport)</td></tr>
+          <tr><td class="col-name">type</td><td class="col-type">ENUM</td><td class="col-note">NOT NULL</td><td class="col-note">income | expense | bill | saving | task | grocery</td></tr>
+          <tr><td class="col-name">icon</td><td class="col-type">VARCHAR(50)</td><td class="col-note">NULLABLE</td><td class="col-note">Nama icon atau emoji</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- budgets -->
+    <div class="table-card">
+      <div class="table-card-header tc-finance">
+        <div>
+          <div class="table-name">budgets</div>
+          <div class="table-desc">Header anggaran per periode bulan</div>
+        </div>
+        <div class="table-badge">Keuangan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">period_start</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">Tanggal awal periode (mis. 2026-05-01)</td></tr>
+          <tr><td class="col-name">period_end</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">Tanggal akhir periode (mis. 2026-05-31)</td></tr>
+          <tr><td class="col-name">starting_balance</td><td class="col-type">DECIMAL(15,2)</td><td class="col-note">DEFAULT 0</td><td class="col-note">Saldo awal periode</td></tr>
+          <tr><td class="col-name">is_active</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">Budget periode berjalan</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- budget_allocations -->
+    <div class="table-card">
+      <div class="table-card-header tc-finance">
+        <div>
+          <div class="table-name">budget_allocations</div>
+          <div class="table-desc">Alokasi anggaran per kategori per periode</div>
+        </div>
+        <div class="table-badge">Keuangan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>budget_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ budgets.id</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>category_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ categories.id</td></tr>
+          <tr><td class="col-name">allocated_amount</td><td class="col-type">DECIMAL(15,2)</td><td class="col-note">NOT NULL, ≥ 0</td><td class="col-note">Anggaran yang ditetapkan</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- transactions -->
+    <div class="table-card" style="grid-column: span 2;">
+      <div class="table-card-header tc-finance">
+        <div>
+          <div class="table-name">transactions</div>
+          <div class="table-desc">Semua transaksi keuangan — income, expense, bill, dan saving</div>
+        </div>
+        <div class="table-badge">Keuangan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>budget_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ budgets.id (periode transaksi ini)</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id (untuk query langsung)</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>category_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ categories.id</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>savings_goal_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NULLABLE</td><td class="col-note">→ savings_goals.id (hanya untuk type=saving)</td></tr>
+          <tr><td class="col-name">type</td><td class="col-type">ENUM</td><td class="col-note">NOT NULL</td><td class="col-note">income | expense | bill | saving</td></tr>
+          <tr><td class="col-name">amount</td><td class="col-type">DECIMAL(15,2)</td><td class="col-note">NOT NULL, > 0</td><td class="col-note">Jumlah dalam Rupiah</td></tr>
+          <tr><td class="col-name">description</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NOT NULL, min 3 char</td><td class="col-note">Keterangan transaksi</td></tr>
+          <tr><td class="col-name">transaction_date</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">Tanggal transaksi dicatat</td></tr>
+          <tr><td class="col-name">due_date</td><td class="col-type">DATE</td><td class="col-note">NULLABLE</td><td class="col-note">Jatuh tempo (khusus type=bill)</td></tr>
+          <tr><td class="col-name">status</td><td class="col-type">ENUM</td><td class="col-note">DEFAULT 'planned'</td><td class="col-note">planned | paid | overdue (untuk bill)</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">TEXT</td><td class="col-note">NULLABLE</td><td class="col-note">Catatan tambahan</td></tr>
+          <tr><td class="col-name"><span class="tag-idx">IDX</span>created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- savings_goals -->
+    <div class="table-card">
+      <div class="table-card-header tc-finance">
+        <div>
+          <div class="table-name">savings_goals</div>
+          <div class="table-desc">Target tabungan spesifik (DP rumah, laptop, dsb.)</div>
+        </div>
+        <div class="table-badge">Keuangan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">goal_name</td><td class="col-type">VARCHAR(150)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama tujuan tabungan</td></tr>
+          <tr><td class="col-name">target_amount</td><td class="col-type">DECIMAL(15,2)</td><td class="col-note">NOT NULL, > 0</td><td class="col-note">Target nominal yang ingin dicapai</td></tr>
+          <tr><td class="col-name">current_saved</td><td class="col-type">DECIMAL(15,2)</td><td class="col-note">DEFAULT 0</td><td class="col-note">Total tabungan terkumpul (dihitung otomatis)</td></tr>
+          <tr><td class="col-name">target_date</td><td class="col-type">DATE</td><td class="col-note">NULLABLE</td><td class="col-note">Deadline pencapaian target</td></tr>
+          <tr><td class="col-name">is_achieved</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">True jika current_saved ≥ target_amount</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- goals -->
+    <div class="table-card">
+      <div class="table-card-header tc-prod">
+        <div>
+          <div class="table-name">goals</div>
+          <div class="table-desc">Goal besar dengan konteks motivasi (OKR-style)</div>
+        </div>
+        <div class="table-badge">Produktivitas</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">title</td><td class="col-type">VARCHAR(200)</td><td class="col-note">NOT NULL</td><td class="col-note">Judul goal</td></tr>
+          <tr><td class="col-name">why</td><td class="col-type">TEXT</td><td class="col-note">NULLABLE</td><td class="col-note">Alasan / motivasi di balik goal</td></tr>
+          <tr><td class="col-name">challenges</td><td class="col-type">TEXT</td><td class="col-note">NULLABLE</td><td class="col-note">Tantangan yang diantisipasi</td></tr>
+          <tr><td class="col-name">reward</td><td class="col-type">VARCHAR(200)</td><td class="col-note">NULLABLE</td><td class="col-note">Reward setelah goal selesai</td></tr>
+          <tr><td class="col-name">status</td><td class="col-type">ENUM</td><td class="col-note">DEFAULT 'active'</td><td class="col-note">active | completed | archived</td></tr>
+          <tr><td class="col-name">progress_pct</td><td class="col-type">DECIMAL(5,2)</td><td class="col-note">DEFAULT 0</td><td class="col-note">% dihitung otomatis dari goal_steps</td></tr>
+          <tr><td class="col-name">due_date</td><td class="col-type">DATE</td><td class="col-note">NULLABLE</td><td class="col-note">Target penyelesaian</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- goal_steps -->
+    <div class="table-card">
+      <div class="table-card-header tc-prod">
+        <div>
+          <div class="table-name">goal_steps</div>
+          <div class="table-desc">Langkah taktis per goal (breakdown)</div>
+        </div>
+        <div class="table-badge">Produktivitas</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>goal_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ goals.id</td></tr>
+          <tr><td class="col-name">step_name</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NOT NULL</td><td class="col-note">Deskripsi langkah</td></tr>
+          <tr><td class="col-name">due_date</td><td class="col-type">DATE</td><td class="col-note">NULLABLE</td><td class="col-note">Deadline per step (opsional)</td></tr>
+          <tr><td class="col-name">is_completed</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">Status penyelesaian step</td></tr>
+          <tr><td class="col-name">sort_order</td><td class="col-type">TINYINT UNSIGNED</td><td class="col-note">DEFAULT 0</td><td class="col-note">Urutan tampilan</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- todo_lists -->
+    <div class="table-card">
+      <div class="table-card-header tc-prod">
+        <div>
+          <div class="table-name">todo_lists</div>
+          <div class="table-desc">Manajemen tugas harian dengan sistem Kanban</div>
+        </div>
+        <div class="table-badge">Produktivitas</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">task_name</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama tugas</td></tr>
+          <tr><td class="col-name">status</td><td class="col-type">ENUM</td><td class="col-note">DEFAULT 'todo'</td><td class="col-note">todo | in_progress | hold | done | canceled</td></tr>
+          <tr><td class="col-name">priority</td><td class="col-type">ENUM</td><td class="col-note">DEFAULT 'medium'</td><td class="col-note">very_high | high | medium | low</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>category_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NULLABLE</td><td class="col-note">→ categories.id</td></tr>
+          <tr><td class="col-name"><span class="tag-idx">IDX</span>due_date</td><td class="col-type">DATE</td><td class="col-note">NULLABLE</td><td class="col-note">Deadline tugas (untuk Today's Focus)</td></tr>
+          <tr><td class="col-name">notes</td><td class="col-type">TEXT</td><td class="col-note">NULLABLE</td><td class="col-note">Catatan tambahan task</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- habits -->
+    <div class="table-card">
+      <div class="table-card-header tc-habit">
+        <div>
+          <div class="table-name">habits</div>
+          <div class="table-desc">Master daftar kebiasaan yang dipantau</div>
+        </div>
+        <div class="table-badge">Habit</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name">habit_name</td><td class="col-type">VARCHAR(100)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama kebiasaan (mis. Olahraga 30 menit)</td></tr>
+          <tr><td class="col-name">emoji</td><td class="col-type">VARCHAR(10)</td><td class="col-note">NULLABLE</td><td class="col-note">Emoji representasi habit</td></tr>
+          <tr><td class="col-name">is_archived</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">Arsip habit (data historis tetap tersimpan)</td></tr>
+          <tr><td class="col-name">current_streak</td><td class="col-type">SMALLINT UNSIGNED</td><td class="col-note">DEFAULT 0</td><td class="col-note">Streak harian saat ini (computed cache)</td></tr>
+          <tr><td class="col-name">longest_streak</td><td class="col-type">SMALLINT UNSIGNED</td><td class="col-note">DEFAULT 0</td><td class="col-note">Rekor streak terpanjang</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- habit_logs -->
+    <div class="table-card">
+      <div class="table-card-header tc-habit">
+        <div>
+          <div class="table-name">habit_logs</div>
+          <div class="table-desc">Log harian per kebiasaan (normalized long-view)</div>
+        </div>
+        <div class="table-badge">Habit</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>habit_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ habits.id</td></tr>
+          <tr><td class="col-name"><span class="tag-uk">UK</span><span class="tag-idx">IDX</span>date</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">Tanggal log (UNIQUE per habit_id+date)</td></tr>
+          <tr><td class="col-name">is_checked</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">Status centang hari tersebut</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note">Diupdate via upsert Livewire</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- weight_logs -->
+    <div class="table-card">
+      <div class="table-card-header tc-habit">
+        <div>
+          <div class="table-name">weight_logs</div>
+          <div class="table-desc">Tracking berat badan harian</div>
+        </div>
+        <div class="table-badge">Kesehatan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name"><span class="tag-uk">UK</span><span class="tag-idx">IDX</span>date</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">UNIQUE per user_id+date (upsert)</td></tr>
+          <tr><td class="col-name">weight</td><td class="col-type">DECIMAL(5,2)</td><td class="col-note">NOT NULL, > 0</td><td class="col-note">Nilai berat badan (2 desimal)</td></tr>
+          <tr><td class="col-name">unit</td><td class="col-type">ENUM</td><td class="col-note">DEFAULT 'kg'</td><td class="col-note">kg | lbs</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- meal_planners -->
+    <div class="table-card">
+      <div class="table-card-header tc-habit">
+        <div>
+          <div class="table-name">meal_planners</div>
+          <div class="table-desc">Rencana makan harian per slot waktu</div>
+        </div>
+        <div class="table-badge">Kesehatan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name"><span class="tag-uk">UK</span><span class="tag-idx">IDX</span>date</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">UNIQUE per user_id+date+meal_time</td></tr>
+          <tr><td class="col-name">meal_time</td><td class="col-type">ENUM</td><td class="col-note">NOT NULL</td><td class="col-note">breakfast | lunch | dinner | snack</td></tr>
+          <tr><td class="col-name">description</td><td class="col-type">VARCHAR(255)</td><td class="col-note">NULLABLE</td><td class="col-note">Nama atau deskripsi menu makanan</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note">Diupdate via inline edit Livewire</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- grocery_lists -->
+    <div class="table-card">
+      <div class="table-card-header tc-habit">
+        <div>
+          <div class="table-name">grocery_lists</div>
+          <div class="table-desc">Daftar belanja — bisa generate otomatis dari meal plan</div>
+        </div>
+        <div class="table-badge">Kesehatan</div>
+      </div>
+      <table class="col-table">
+        <thead><tr><th>Kolom</th><th>Tipe</th><th>Constraint</th><th>Keterangan</th></tr></thead>
+        <tbody>
+          <tr><td class="col-name"><span class="tag-pk">PK</span>id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">AUTO_INCREMENT</td><td class="col-note"></td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>user_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NOT NULL</td><td class="col-note">→ users.id</td></tr>
+          <tr><td class="col-name"><span class="tag-idx">IDX</span>week_start</td><td class="col-type">DATE</td><td class="col-note">NOT NULL</td><td class="col-note">Tanggal Senin awal minggu (pengelompokan)</td></tr>
+          <tr><td class="col-name">item_name</td><td class="col-type">VARCHAR(150)</td><td class="col-note">NOT NULL</td><td class="col-note">Nama item belanjaan</td></tr>
+          <tr><td class="col-name">quantity</td><td class="col-type">DECIMAL(8,2)</td><td class="col-note">NULLABLE</td><td class="col-note">Jumlah (mis. 500, 2, 1.5)</td></tr>
+          <tr><td class="col-name">unit</td><td class="col-type">VARCHAR(30)</td><td class="col-note">NULLABLE</td><td class="col-note">Satuan (gram, buah, liter, bungkus)</td></tr>
+          <tr><td class="col-name"><span class="tag-fk">FK</span>category_id</td><td class="col-type">BIGINT UNSIGNED</td><td class="col-note">NULLABLE</td><td class="col-note">→ categories.id (type=grocery)</td></tr>
+          <tr><td class="col-name">is_bought</td><td class="col-type">BOOLEAN</td><td class="col-note">DEFAULT FALSE</td><td class="col-note">Status pembelian (shopping mode)</td></tr>
+          <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">DEFAULT NOW()</td><td class="col-note"></td></tr>
+          <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMP</td><td class="col-note">ON UPDATE NOW()</td><td class="col-note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /dd-grid -->
+
+
+  <!-- Section 3: Relationships -->
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div>
+      <h2>Tabel Relasi Antar Entitas</h2>
+      <p>Foreign key constraints, kardinalitas, dan On-Delete behavior</p>
+    </div>
+  </div>
+
+  <table class="rel-table">
+    <thead>
+      <tr>
+        <th>Dari (Parent)</th>
+        <th>Ke (Child)</th>
+        <th>Kardinalitas</th>
+        <th>Kolom FK</th>
+        <th>On Delete</th>
+        <th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="rel-from">users</td><td class="rel-to">categories</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Setiap user punya kategori sendiri</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">budgets</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">User bisa punya banyak periode budget</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">savings_goals</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">User bisa punya banyak tujuan tabungan</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">transactions</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Kolom redundan untuk query efisiensi</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">goals</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Goal besar milik user</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">todo_lists</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Semua task milik user</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">habits</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Habit list milik user</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">weight_logs</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Log berat badan harian</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">meal_planners</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Meal plan mingguan</td></tr>
+      <tr><td class="rel-from">users</td><td class="rel-to">grocery_lists</td><td><span class="rel-card">1 : N</span></td><td class="col-type">user_id</td><td class="col-note">CASCADE</td><td class="col-note">Daftar belanja per minggu</td></tr>
+      <tr><td class="rel-from">budgets</td><td class="rel-to">transactions</td><td><span class="rel-card">1 : N</span></td><td class="col-type">budget_id</td><td class="col-note">RESTRICT</td><td class="col-note">Transaksi harus punya periode budget</td></tr>
+      <tr><td class="rel-from">budgets</td><td class="rel-to">budget_allocations</td><td><span class="rel-card">1 : N</span></td><td class="col-type">budget_id</td><td class="col-note">CASCADE</td><td class="col-note">Alokasi kategori per periode</td></tr>
+      <tr><td class="rel-from">categories</td><td class="rel-to">transactions</td><td><span class="rel-card">1 : N</span></td><td class="col-type">category_id</td><td class="col-note">RESTRICT</td><td class="col-note">Kategori tidak bisa dihapus jika ada transaksi</td></tr>
+      <tr><td class="rel-from">categories</td><td class="rel-to">budget_allocations</td><td><span class="rel-card">1 : N</span></td><td class="col-type">category_id</td><td class="col-note">CASCADE</td><td class="col-note">Alokasi merujuk ke kategori</td></tr>
+      <tr><td class="rel-from">categories</td><td class="rel-to">todo_lists</td><td><span class="rel-card">1 : N</span></td><td class="col-type">category_id</td><td class="col-note">SET NULL</td><td class="col-note">Task tetap ada jika kategori dihapus</td></tr>
+      <tr><td class="rel-from">categories</td><td class="rel-to">grocery_lists</td><td><span class="rel-card">1 : N</span></td><td class="col-type">category_id</td><td class="col-note">SET NULL</td><td class="col-note">Item grocery tetap ada jika kategori dihapus</td></tr>
+      <tr><td class="rel-from">savings_goals</td><td class="rel-to">transactions</td><td><span class="rel-card">1 : N</span></td><td class="col-type">savings_goal_id</td><td class="col-note">SET NULL</td><td class="col-note">Transaksi saving bisa tidak terhubung ke goal</td></tr>
+      <tr><td class="rel-from">goals</td><td class="rel-to">goal_steps</td><td><span class="rel-card">1 : N</span></td><td class="col-type">goal_id</td><td class="col-note">CASCADE</td><td class="col-note">Steps dihapus saat goal dihapus</td></tr>
+      <tr><td class="rel-from">habits</td><td class="rel-to">habit_logs</td><td><span class="rel-card">1 : N</span></td><td class="col-type">habit_id</td><td class="col-note">CASCADE</td><td class="col-note">Log dihapus saat habit dihapus (catatan: archive lebih aman)</td></tr>
+    </tbody>
+  </table>
+
+
+  <!-- Section 4: Indexes -->
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div>
+      <h2>Rekomendasi Index</h2>
+      <p>Index untuk optimasi query kritis — dashboard, tracker, dan streak calculation</p>
+    </div>
+  </div>
+
+  <div class="index-grid">
+
+    <div class="index-card">
+      <div class="tname">transactions</div>
+      <div class="idx-row"><div class="idx-cols">(budget_id, type)</div><div class="idx-reason">Dashboard financial overview — filter per periode &amp; tipe</div></div>
+      <div class="idx-row"><div class="idx-cols">(user_id, transaction_date)</div><div class="idx-reason">Query transaksi user per rentang tanggal</div></div>
+      <div class="idx-row"><div class="idx-cols">(status, due_date)</div><div class="idx-reason">Bill tracker — filter overdue &amp; mendatang</div></div>
+      <div class="idx-row"><div class="idx-cols">(savings_goal_id)</div><div class="idx-reason">Sum current_saved per goal</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">habit_logs</div>
+      <div class="idx-row"><div class="idx-cols">UNIQUE (habit_id, date)</div><div class="idx-reason">Prevent duplikat &amp; percepat upsert toggle</div></div>
+      <div class="idx-row"><div class="idx-cols">(habit_id, date DESC)</div><div class="idx-reason">Kalkulasi streak — baca hari mundur dari hari ini</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">todo_lists</div>
+      <div class="idx-row"><div class="idx-cols">(user_id, due_date)</div><div class="idx-reason">Today's Focus panel — filter task due hari ini</div></div>
+      <div class="idx-row"><div class="idx-cols">(user_id, status)</div><div class="idx-reason">Kanban board — filter per kolom status</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">budget_allocations</div>
+      <div class="idx-row"><div class="idx-cols">UNIQUE (budget_id, category_id)</div><div class="idx-reason">Satu alokasi per kategori per periode budget</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">weight_logs</div>
+      <div class="idx-row"><div class="idx-cols">UNIQUE (user_id, date)</div><div class="idx-reason">Satu log berat per hari — upsert logic</div></div>
+      <div class="idx-row"><div class="idx-cols">(user_id, date DESC)</div><div class="idx-reason">Grafik tren — ambil data 30/90/365 hari terakhir</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">meal_planners</div>
+      <div class="idx-row"><div class="idx-cols">UNIQUE (user_id, date, meal_time)</div><div class="idx-reason">Satu slot per waktu makan per hari</div></div>
+      <div class="idx-row"><div class="idx-cols">(user_id, date)</div><div class="idx-reason">Today's Focus &amp; meal planner mingguan</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">grocery_lists</div>
+      <div class="idx-row"><div class="idx-cols">(user_id, week_start)</div><div class="idx-reason">Ambil semua item belanja untuk minggu tertentu</div></div>
+    </div>
+
+    <div class="index-card">
+      <div class="tname">goal_steps</div>
+      <div class="idx-row"><div class="idx-cols">(goal_id, is_completed)</div><div class="idx-reason">Hitung progress % goal secara efisien</div></div>
+    </div>
+
+  </div>
+
+
+  <!-- Section 5: ENUMs -->
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div>
+      <h2>Referensi ENUM</h2>
+      <p>Nilai yang valid untuk setiap kolom ENUM di database</p>
+    </div>
+  </div>
+
+  <div class="enum-grid">
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">transactions.type</div>
+        <div class="etable">tabel: transactions</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">income</div><div class="ev-desc">Pemasukan / pendapatan</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#d85a30"></div><div class="ev-code">expense</div><div class="ev-desc">Pengeluaran harian</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#ba7517"></div><div class="ev-code">bill</div><div class="ev-desc">Tagihan rutin (PLN, BPJS, dll.)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">saving</div><div class="ev-desc">Alokasi tabungan ke savings goal</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">transactions.status</div>
+        <div class="etable">tabel: transactions (khusus bill)</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#888780"></div><div class="ev-code">planned</div><div class="ev-desc">Belum dibayar, belum jatuh tempo</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">paid</div><div class="ev-desc">Sudah dibayar (Tandai Lunas)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#e24b4a"></div><div class="ev-code">overdue</div><div class="ev-desc">Melewati due_date, belum bayar (auto via Scheduler)</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">todo_lists.status</div>
+        <div class="etable">tabel: todo_lists — Kanban kolom</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#888780"></div><div class="ev-code">todo</div><div class="ev-desc">Kolom "To Do"</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">in_progress</div><div class="ev-desc">Kolom "In Progress"</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#ba7517"></div><div class="ev-code">hold</div><div class="ev-desc">Kolom "Hold"</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">done</div><div class="ev-desc">Kolom "Done"</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#e24b4a"></div><div class="ev-code">canceled</div><div class="ev-desc">Dibatalkan (tidak ditampilkan di Today's Focus)</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">todo_lists.priority</div>
+        <div class="etable">tabel: todo_lists — 4 level prioritas</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#e24b4a"></div><div class="ev-code">very_high</div><div class="ev-desc">Badge merah — urgent &amp; penting</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#d85a30"></div><div class="ev-code">high</div><div class="ev-desc">Badge oranye</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#ba7517"></div><div class="ev-code">medium</div><div class="ev-desc">Badge kuning (default)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">low</div><div class="ev-desc">Badge hijau — bisa ditunda</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">goals.status</div>
+        <div class="etable">tabel: goals</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">active</div><div class="ev-desc">Goal sedang berjalan</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">completed</div><div class="ev-desc">Semua steps selesai atau manual mark done</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#888780"></div><div class="ev-code">archived</div><div class="ev-desc">Diarsipkan, tidak ditampilkan di halaman utama</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">meal_planners.meal_time</div>
+        <div class="etable">tabel: meal_planners</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#ba7517"></div><div class="ev-code">breakfast</div><div class="ev-desc">Sarapan — slot 1 dari 4</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">lunch</div><div class="ev-desc">Makan siang — slot 2</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#d85a30"></div><div class="ev-code">dinner</div><div class="ev-desc">Makan malam — slot 3</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">snack</div><div class="ev-desc">Camilan — slot 4</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">weight_logs.unit</div>
+        <div class="etable">tabel: weight_logs</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">kg</div><div class="ev-desc">Kilogram (default)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#888780"></div><div class="ev-code">lbs</div><div class="ev-desc">Pound (konversi di layer aplikasi)</div></div>
+    </div>
+
+    <div class="enum-card">
+      <div class="enum-card-head">
+        <div class="ename">categories.type</div>
+        <div class="etable">tabel: categories — multi-modul</div>
+      </div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a8c60"></div><div class="ev-code">income</div><div class="ev-desc">Kategori pemasukan (Gaji, Freelance)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#d85a30"></div><div class="ev-code">expense</div><div class="ev-desc">Kategori pengeluaran (Makan, Transport)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#ba7517"></div><div class="ev-code">bill</div><div class="ev-desc">Kategori tagihan (Listrik, Internet)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a4a7a"></div><div class="ev-code">saving</div><div class="ev-desc">Kategori tabungan (Investasi, Dana Darurat)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#4a2a7a"></div><div class="ev-code">task</div><div class="ev-desc">Kategori tugas (Pekerjaan, Personal)</div></div>
+      <div class="enum-val"><div class="ev-dot" style="background:#1a5a5a"></div><div class="ev-code">grocery</div><div class="ev-desc">Kategori belanja (Sayur, Daging, Dairy)</div></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <span>LP-DB-SCHEMA-2026-001 · LifePlanner SIM · TALL Stack · MySQL 8.0+</span>
+  <span>15 tabel · 5 modul · Referensi: LP-PRD-BRD-2026-001 &amp; LP-US-AC-2026-001</span>
+</footer>
+
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Plus Jakarta Sans", "DM Mono", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Plus Jakarta Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#1a2e1e' : '#ecf4ee',
+    primaryBorderColor: dark ? '#4a8c60' : '#c0dbc8',
+    primaryTextColor: dark ? '#a0d0b0' : '#2d5a3d',
+    secondaryColor: dark ? '#1a1e2e' : '#e8f0f8',
+    secondaryBorderColor: dark ? '#1a4a7a' : '#b0c8e4',
+    secondaryTextColor: dark ? '#a0b8e0' : '#1a4a7a',
+    tertiaryColor: dark ? '#1e1a2e' : '#f0ebf8',
+    tertiaryBorderColor: dark ? '#4a2a7a' : '#c8b8e8',
+    tertiaryTextColor: dark ? '#c0a8e8' : '#4a2a7a',
+  },
+  er: { diagramPadding: 20, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75, entityPadding: 15, useMaxWidth: true }
+});
+
+async function renderERD(id, src) {
+  try {
+    const { svg } = await mermaid.render(id + '-svg', src);
+    document.getElementById(id).innerHTML = svg;
+    document.querySelectorAll('#' + id + ' svg .node').forEach(node => {
+      const firstPath = node.querySelector('path[d]');
+      if (!firstPath) return;
+      const d = firstPath.getAttribute('d');
+      const nums = d.match(/-?[\d.]+/g)?.map(Number);
+      if (!nums || nums.length < 8) return;
+      const xs = [nums[0], nums[2], nums[4], nums[6]];
+      const ys = [nums[1], nums[3], nums[5], nums[7]];
+      const x = Math.min(...xs), y = Math.min(...ys);
+      const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', y);
+      rect.setAttribute('width', w); rect.setAttribute('height', h);
+      rect.setAttribute('rx', '8');
+      for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+        if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+      }
+      firstPath.replaceWith(rect);
+    });
+  } catch(e) { console.error('ERD render error:', id, e); }
+}
+
+const financeERD = `erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+    string password_hash
+    string currency
+    timestamp created_at
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+    string icon
+  }
+  BUDGETS {
+    bigint id PK
+    bigint user_id FK
+    date period_start
+    date period_end
+    decimal starting_balance
+    boolean is_active
+  }
+  BUDGET_ALLOCATIONS {
+    bigint id PK
+    bigint budget_id FK
+    bigint category_id FK
+    decimal allocated_amount
+  }
+  TRANSACTIONS {
+    bigint id PK
+    bigint budget_id FK
+    bigint user_id FK
+    enum type
+    bigint category_id FK
+    bigint savings_goal_id FK
+    decimal amount
+    string description
+    date transaction_date
+    date due_date
+    enum status
+  }
+  SAVINGS_GOALS {
+    bigint id PK
+    bigint user_id FK
+    string goal_name
+    decimal target_amount
+    decimal current_saved
+    date target_date
+    boolean is_achieved
+  }
+  USERS ||--o{ CATEGORIES : "has"
+  USERS ||--o{ BUDGETS : "creates"
+  USERS ||--o{ SAVINGS_GOALS : "sets"
+  USERS ||--o{ TRANSACTIONS : "owns"
+  BUDGETS ||--o{ TRANSACTIONS : "contains"
+  BUDGETS ||--o{ BUDGET_ALLOCATIONS : "allocates"
+  CATEGORIES ||--o{ TRANSACTIONS : "classifies"
+  CATEGORIES ||--o{ BUDGET_ALLOCATIONS : "referenced in"
+  SAVINGS_GOALS ||--o{ TRANSACTIONS : "receives saving"`;
+
+const prodERD = `erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+  }
+  GOALS {
+    bigint id PK
+    bigint user_id FK
+    string title
+    text why
+    string reward
+    enum status
+    decimal progress_pct
+    date due_date
+  }
+  GOAL_STEPS {
+    bigint id PK
+    bigint goal_id FK
+    string step_name
+    date due_date
+    boolean is_completed
+    int sort_order
+  }
+  TODO_LISTS {
+    bigint id PK
+    bigint user_id FK
+    string task_name
+    enum status
+    enum priority
+    bigint category_id FK
+    date due_date
+  }
+  USERS ||--o{ GOALS : "creates"
+  USERS ||--o{ TODO_LISTS : "manages"
+  GOALS ||--o{ GOAL_STEPS : "broken into"
+  CATEGORIES ||--o{ TODO_LISTS : "tags"`;
+
+const habitERD = `erDiagram
+  USERS {
+    bigint id PK
+    string name
+    string email
+  }
+  CATEGORIES {
+    bigint id PK
+    bigint user_id FK
+    string name
+    enum type
+  }
+  HABITS {
+    bigint id PK
+    bigint user_id FK
+    string habit_name
+    string emoji
+    boolean is_archived
+    int current_streak
+    int longest_streak
+  }
+  HABIT_LOGS {
+    bigint id PK
+    bigint habit_id FK
+    date date
+    boolean is_checked
+  }
+  WEIGHT_LOGS {
+    bigint id PK
+    bigint user_id FK
+    date date
+    decimal weight
+    enum unit
+  }
+  MEAL_PLANNERS {
+    bigint id PK
+    bigint user_id FK
+    date date
+    enum meal_time
+    string description
+  }
+  GROCERY_LISTS {
+    bigint id PK
+    bigint user_id FK
+    date week_start
+    string item_name
+    decimal quantity
+    string unit
+    bigint category_id FK
+    boolean is_bought
+  }
+  USERS ||--o{ HABITS : "tracks"
+  USERS ||--o{ WEIGHT_LOGS : "records"
+  USERS ||--o{ MEAL_PLANNERS : "plans"
+  USERS ||--o{ GROCERY_LISTS : "generates"
+  HABITS ||--o{ HABIT_LOGS : "logged in"
+  CATEGORIES ||--o{ GROCERY_LISTS : "tags"`;
+
+await renderERD('erd-finance', financeERD);
+await renderERD('erd-prod', prodERD);
+await renderERD('erd-habit', habitERD);
+</script>
+</body>
+</html>

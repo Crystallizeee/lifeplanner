@@ -1,0 +1,7 @@
+# Miscellaneous
+.DS_Store
+.idea/
+.vscode/
+
+# Local projects to ignore
+/wandern/

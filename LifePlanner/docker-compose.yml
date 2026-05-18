@@ -1,0 +1,114 @@
+# LifePlanner SIM v1.0 — Docker Compose
+# @see agent.md | Docker Compose Architecture
+
+services:
+  # Laravel Application + PHP-FPM
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lifeplanner_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html:cached
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - lifeplanner_network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - REDIS_HOST=redis
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: lifeplanner_nginx
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./:/var/www/html:cached
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - lifeplanner_network
+    depends_on:
+      - app
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: lifeplanner_mysql
+    restart: unless-stopped
+    ports:
+      - "33066:3306"
+    environment:
+      MYSQL_DATABASE: lifeplanner
+      MYSQL_USER: lifeplanner_user
+      MYSQL_PASSWORD: secret_password
+      MYSQL_ROOT_PASSWORD: root_secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - lifeplanner_network
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: lifeplanner_redis
+    restart: unless-stopped
+    ports:
+      - "63790:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lifeplanner_network
+
+  # Node.js for Vite Asset Compilation
+  node:
+    image: node:20-alpine
+    container_name: lifeplanner_node
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html:cached
+    ports:
+      - "5173:5173"
+    command: npm run dev
+    networks:
+      - lifeplanner_network
+    depends_on:
+      - app
+
+  # Laravel Scheduler (Cron)
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lifeplanner_scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html:cached
+    command: php artisan schedule:work
+    networks:
+      - lifeplanner_network
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - REDIS_HOST=redis
+
+networks:
+  lifeplanner_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
