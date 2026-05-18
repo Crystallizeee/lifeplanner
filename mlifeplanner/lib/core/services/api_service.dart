@@ -8,6 +8,11 @@ class ApiService {
   // Helper to determine the API base URL based on the platform.
   // Using 10.0.2.2 for Android emulator to access localhost of the host machine.
   static String get baseUrl {
+    // Production API Base URL
+    return 'https://life.cyrstallize.my.id/api';
+
+    // Local Development Fallbacks (Uncomment if working locally)
+    /*
     if (kIsWeb) {
       return 'http://127.0.0.1:8000/api';
     }
@@ -15,6 +20,7 @@ class ApiService {
       return 'http://10.0.2.2:8000/api';
     }
     return 'http://127.0.0.1:8000/api';
+    */
   }
 
   static const String _tokenKey = 'auth_token';
