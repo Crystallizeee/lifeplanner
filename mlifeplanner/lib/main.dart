@@ -27,14 +27,6 @@ class MainApp extends StatelessWidget {
       theme: AppTheme.darkTheme,
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          if (authProvider.isLoading && !authProvider.isAuthenticated) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(color: AppTheme.primaryContainer),
-              ),
-            );
-          }
-          
           if (authProvider.isAuthenticated) {
             return const MainScreen();
           } else {

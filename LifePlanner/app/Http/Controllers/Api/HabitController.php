@@ -16,7 +16,7 @@ class HabitController extends Controller
         $today  = today();
         $habits = Habit::where('user_id', $request->user()->id)
             ->where('is_archived', false)
-            ->orderBy('name')
+            ->orderBy('habit_name')
             ->get()
             ->map(fn($h) => $this->format($h, $today));
         return response()->json(['success' => true, 'data' => $habits]);

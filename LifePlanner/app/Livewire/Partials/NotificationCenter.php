@@ -53,10 +53,8 @@ class NotificationCenter extends Component
         }
 
         // 2. Uncompleted Habits for Today
-        $todayName = strtolower(now()->format('l')); // e.g. monday
         $activeHabits = Habit::where('user_id', $userId)
-            ->where('is_active', true)
-            ->where($todayName, true)
+            ->where('is_archived', false)
             ->get();
 
         foreach ($activeHabits as $habit) {
@@ -75,9 +73,9 @@ class NotificationCenter extends Component
 
         // 3. Goals Due Soon (within 3 days)
         $soonGoals = Goal::where('user_id', $userId)
-            ->where('is_completed', false)
-            ->whereNotNull('target_date')
-            ->whereBetween('target_date', [today(), today()->addDays(3)])
+            ->where('status', 'active')
+            ->whereNotNull('due_date')
+            ->whereBetween('due_date', [today(), today()->addDays(3)])
             ->get();
 
         foreach ($soonGoals as $goal) {
@@ -86,7 +84,7 @@ class NotificationCenter extends Component
                 'type' => 'info',
                 'icon' => '🎯',
                 'title' => 'Target Hampir Tiba',
-                'message' => "Target \"{$goal->title}\" berakhir pada " . $goal->target_date->format('d M Y') . ".",
+                'message' => "Target \"{$goal->title}\" berakhir pada " . $goal->due_date->format('d M Y') . ".",
                 'url' => route('productivity.goals'),
             ];
         }

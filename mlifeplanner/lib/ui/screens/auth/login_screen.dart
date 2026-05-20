@@ -11,8 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'admin@lifeplanner.local');
+  final _passwordController = TextEditingController(text: 'password123');
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -25,16 +25,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final success = await authProvider.login(
+      final errorMsg = await authProvider.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
 
-      if (!success && mounted) {
+      if (errorMsg != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login gagal. Periksa email dan password Anda.'),
+          SnackBar(
+            content: Text(errorMsg),
             backgroundColor: AppTheme.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }

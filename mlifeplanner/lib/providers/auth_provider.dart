@@ -10,9 +10,9 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
+      id: json['id'] is String ? int.tryParse(json['id']) ?? 0 : json['id'],
+      name: json['name'] ?? 'User',
+      email: json['email'] ?? '',
     );
   }
 }
@@ -47,7 +47,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
 
@@ -65,16 +65,16 @@ class AuthProvider with ChangeNotifier {
         
         _isLoading = false;
         notifyListeners();
-        return true;
+        return null; // Null means success
       }
+      _isLoading = false;
+      notifyListeners();
+      return response['message'] ?? 'Login failed';
     } catch (e) {
-      print('LOGIN ERROR: $e');
-      // Return false and handle UI error externally
+      _isLoading = false;
+      notifyListeners();
+      return e.toString().replaceAll('Exception: ', ''); // Return the exact error
     }
-    
-    _isLoading = false;
-    notifyListeners();
-    return false;
   }
 
   Future<void> logout() async {

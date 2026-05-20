@@ -73,20 +73,22 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.primaryContainer,
-        foregroundColor: Colors.black,
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const QuickEntryScreen()),
-          );
-          if (result == true) {
-            setState(() {});
-          }
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: (_currentIndex == 0 || _currentIndex == 1)
+          ? FloatingActionButton(
+              backgroundColor: AppTheme.primaryContainer,
+              foregroundColor: Colors.black,
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const QuickEntryScreen()),
+                );
+                if (result == true) {
+                  setState(() {});
+                }
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }
