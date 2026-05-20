@@ -46,6 +46,14 @@ class TodoController extends Controller
     {
         if ($todo->user_id !== $request->user()->id) return response()->json(['success' => false], 404);
         
+        $request->validate([
+            'title'       => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'priority'    => 'sometimes|nullable|in:low,medium,high',
+            'due_date'    => 'nullable|date',
+            'status'      => 'sometimes|required|in:todo,in_progress,hold,done,canceled',
+        ]);
+
         $data = [];
         if ($request->has('title')) $data['task_name'] = $request->title;
         if ($request->has('description')) $data['notes'] = $request->description;
