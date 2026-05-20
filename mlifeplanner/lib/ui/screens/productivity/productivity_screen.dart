@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'kanban_board_view.dart';
 
 class ProductivityScreen extends StatefulWidget {
   const ProductivityScreen({super.key});
@@ -15,6 +16,7 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
   bool _isLoading = true;
   List<dynamic> _todos = [];
   String? _errorMessage;
+  bool _isKanbanView = true; // Default to the awesome new Kanban Board!
 
   @override
   void initState() {
@@ -58,6 +60,24 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update task: $e'), backgroundColor: AppTheme.error),
+      );
+    }
+  }
+
+  Future<void> _updateTodoStatus(int id, String status) async {
+    try {
+      final response = await _apiService.put('/todos/$id', {'status': status});
+      if (response['success'] == true) {
+        setState(() {
+          final index = _todos.indexWhere((t) => t['id'] == id);
+          if (index != -1) {
+            _todos[index] = response['data'];
+          }
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update status: $e'), backgroundColor: AppTheme.error),
       );
     }
   }
@@ -230,6 +250,15 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
         title: const Text('Productivity Center'),
         actions: [
           IconButton(
+            icon: Icon(_isKanbanView ? Icons.view_list_rounded : Icons.dashboard_customize_rounded),
+            tooltip: _isKanbanView ? 'Switch to List View' : 'Switch to Kanban Board',
+            onPressed: () {
+              setState(() {
+                _isKanbanView = !_isKanbanView;
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _fetchTodos,
           ),
@@ -272,6 +301,19 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
     if (_todos.isEmpty) {
       return const Center(
         child: Text('No tasks created yet. Tap the button below to add one!'),
+      );
+    }
+
+    if (_isKanbanView) {
+      return RefreshIndicator(
+        onRefresh: _fetchTodos,
+        color: AppTheme.primaryContainer,
+        child: KanbanBoardView(
+          todos: _todos,
+          onStatusChanged: _updateTodoStatus,
+          onDelete: _deleteTodo,
+          onToggleDone: _toggleTodo,
+        ),
       );
     }
 
