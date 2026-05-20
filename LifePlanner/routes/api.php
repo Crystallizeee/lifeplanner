@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\TodoController;
 use App\Http\Controllers\Api\HabitController;
 use App\Http\Controllers\Api\WeightLogController;
 use App\Http\Controllers\Api\InvestmentController;
+use App\Http\Controllers\Api\MealController;
+use App\Http\Controllers\Api\GroceryController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public: Auth ──
@@ -48,4 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/habits', HabitController::class);
     Route::post('/habits/{habit}/log', [HabitController::class, 'logToday']);
     Route::apiResource('/weight-logs', WeightLogController::class);
+
+    // Meal Planner & Grocery List
+    Route::post('/meals/copy-week', [MealController::class, 'copyWeek']);
+    Route::apiResource('/meals', MealController::class)->except(['show', 'update']);
+    Route::delete('/grocery-lists/reset', [GroceryController::class, 'reset']);
+    Route::post('/grocery-lists/generate', [GroceryController::class, 'generate']);
+    Route::apiResource('/grocery-lists', GroceryController::class)->except(['show']);
 });

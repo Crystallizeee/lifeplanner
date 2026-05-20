@@ -16,6 +16,10 @@ class GroceryList extends Model
         'unit',
         'category_id',
         'is_bought',
+        'qty',
+        'is_checked',
+        'week_of',
+        'category',
     ];
 
     protected $casts = [
@@ -24,6 +28,62 @@ class GroceryList extends Model
         'is_bought' => 'boolean',
     ];
 
+    // ── Virtual Attributes (mapping legacy fields to schema columns) ──
+
+    public function getQtyAttribute()
+    {
+        return $this->quantity;
+    }
+
+    public function setQtyAttribute($value): void
+    {
+        $this->attributes['quantity'] = $value;
+    }
+
+    public function getIsCheckedAttribute(): bool
+    {
+        return (bool)$this->is_bought;
+    }
+
+    public function setIsCheckedAttribute($value): void
+    {
+        $this->attributes['is_bought'] = (bool)$value;
+    }
+
+    public function getWeekOfAttribute()
+    {
+        return $this->week_start;
+    }
+
+    public function setWeekOfAttribute($value): void
+    {
+        $this->attributes['week_start'] = $value;
+    }
+
+    public function getCategoryAttribute(): string
+    {
+        return $this->categoryRelation?->name ?? 'Umum';
+    }
+
+    public function setCategoryAttribute(?string $value): void
+    {
+        if (empty($value)) {
+            $this->attributes['category_id'] = null;
+            return;
+        }
+
+        // Find or create category of type 'grocery' for the user
+        $userId = $this->user_id ?? \Illuminate\Support\Facades\Auth::id();
+        if ($userId) {
+            $categoryObj = Category::firstOrCreate([
+                'user_id' => $userId,
+                'name' => $value,
+                'type' => 'grocery',
+            ]);
+            $this->attributes['category_id'] = $categoryObj->id;
+        }
+    }
+
     // ── Relationships ──
 
     public function user(): BelongsTo
@@ -31,9 +91,16 @@ class GroceryList extends Model
         return $this->belongsTo(User::class);
     }
 
+    // Rename standard category relation to avoid conflict with 'category' accessor
+    public function categoryRelation(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    // Keep original category method for backward compatibility
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     // ── Scopes ──

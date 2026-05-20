@@ -49,7 +49,7 @@ class MealPlannerPage extends Component
             [
                 'user_id' => Auth::id(),
                 'date' => $this->date,
-                'meal_type' => $this->meal_type,
+                'meal_time' => $this->meal_type,
             ],
             [
                 'meal_name' => $this->meal_name,
