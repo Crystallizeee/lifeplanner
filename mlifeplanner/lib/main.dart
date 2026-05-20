@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'ui/screens/auth/biometric_lock_screen.dart';
 import 'ui/screens/auth/login_screen.dart';
 import 'ui/screens/home/main_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notification service early
+  await NotificationService().init();
+
   runApp(
     MultiProvider(
       providers: [
@@ -28,7 +35,9 @@ class MainApp extends StatelessWidget {
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
           if (authProvider.isAuthenticated) {
-            return const MainScreen();
+            return const BiometricLockScreen(
+              child: MainScreen(),
+            );
           } else {
             return const LoginScreen();
           }
