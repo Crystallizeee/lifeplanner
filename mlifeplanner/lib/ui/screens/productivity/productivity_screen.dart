@@ -237,6 +237,7 @@ class _ProductivityScreenState extends State<ProductivityScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'productivity_add_task_fab',
         onPressed: _showAddTaskSheet,
         backgroundColor: AppTheme.primaryContainer,
         foregroundColor: Colors.black,

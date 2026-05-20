@@ -75,6 +75,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       floatingActionButton: (_currentIndex == 0 || _currentIndex == 1)
           ? FloatingActionButton(
+              heroTag: 'main_quick_entry_fab',
               backgroundColor: AppTheme.primaryContainer,
               foregroundColor: Colors.black,
               onPressed: () async {

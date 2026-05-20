@@ -351,6 +351,7 @@ class _InvestmentsTabState extends State<InvestmentsTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        heroTag: 'finance_investments_tab_fab',
         onPressed: _showAddInvestmentSheet,
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.black),

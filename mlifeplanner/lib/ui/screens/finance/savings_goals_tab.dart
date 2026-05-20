@@ -273,6 +273,7 @@ class _SavingsGoalsTabState extends State<SavingsGoalsTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        heroTag: 'finance_savings_goals_tab_fab',
         onPressed: _showAddGoalSheet,
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.black),

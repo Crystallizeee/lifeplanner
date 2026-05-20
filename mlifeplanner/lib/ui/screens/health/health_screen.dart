@@ -456,6 +456,7 @@ class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderSt
               ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'health_add_habit_fab',
         onPressed: _showAddHabitSheet,
         backgroundColor: AppTheme.primaryContainer,
         foregroundColor: Colors.black,
@@ -567,6 +568,7 @@ class _HealthScreenState extends State<HealthScreen> with SingleTickerProviderSt
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'health_add_weight_fab',
         onPressed: _showAddWeightSheet,
         backgroundColor: AppTheme.primaryContainer,
         foregroundColor: Colors.black,

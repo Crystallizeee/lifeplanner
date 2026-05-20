@@ -266,6 +266,7 @@ class _BudgetsTabState extends State<BudgetsTab> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        heroTag: 'finance_budgets_tab_fab',
         onPressed: _showAddBudgetSheet,
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add, color: Colors.black),
