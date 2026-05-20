@@ -6,6 +6,7 @@ import 'quick_entry_screen.dart';
 import 'investments_tab.dart';
 import 'budgets_tab.dart';
 import 'savings_goals_tab.dart';
+import '../../widgets/cashflow_chart_widget.dart';
 
 class FinanceScreen extends StatefulWidget {
   const FinanceScreen({super.key});
@@ -83,9 +84,12 @@ class _FinanceScreenState extends State<FinanceScreen> {
         ),
         body: TabBarView(
           children: [
-            // Tab 1: Journal Logs
+            // Tab 1: Journal Logs (with cashflow chart)
             Column(
               children: [
+                // Cashflow Chart (collapsible)
+                const CashflowChartWidget(),
+
                 // Filter Tabs
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

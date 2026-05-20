@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\WeightLogController;
 use App\Http\Controllers\Api\InvestmentController;
 use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\GroceryController;
+use App\Http\Controllers\Api\ChartController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public: Auth ──
@@ -40,6 +41,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/budgets', BudgetController::class);
     Route::apiResource('/savings-goals', SavingsGoalController::class);
     Route::apiResource('/investments', InvestmentController::class);
+
+    // Charts
+    Route::get('/charts/cashflow', [ChartController::class, 'cashflow']);
+    Route::get('/charts/spending-breakdown', [ChartController::class, 'spendingBreakdown']);
 
     // Productivity
     Route::apiResource('/goals', GoalController::class);

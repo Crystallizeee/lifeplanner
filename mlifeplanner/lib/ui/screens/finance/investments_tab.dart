@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../widgets/investment_pie_chart.dart';
 
 class InvestmentsTab extends StatefulWidget {
   const InvestmentsTab({super.key});
@@ -365,6 +366,10 @@ class _InvestmentsTabState extends State<InvestmentsTab> {
           children: [
             // 1. Premium Glassy Portfolio Card
             _buildPortfolioCard(),
+            const SizedBox(height: 16),
+
+            // 1b. Asset Allocation Pie Chart
+            InvestmentPieChart(investments: _investments),
             const SizedBox(height: 24),
 
             // 2. Section Header
